@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RestaurantReservation.Db.DTOs;
 using RestaurantReservation.Db.Models;
 
 namespace RestaurantReservation.Db;
@@ -12,6 +13,8 @@ public class RestaurantReservationDbContext : DbContext
     public DbSet<Restaurant> Restaurants { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
+    public DbSet<ReservationWithCustomerAndRestaurantDto> ReservationWithCustomerAndRestaurant { get; set; }
+    public DbSet<EmployeeWithRestaurantDto> EmployeeWithRestaurant { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -20,6 +23,14 @@ public class RestaurantReservationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<ReservationWithCustomerAndRestaurantDto>()
+                    .HasNoKey()
+                    .ToView(nameof(ReservationWithCustomerAndRestaurant));
+
+        modelBuilder.Entity<EmployeeWithRestaurantDto>()
+                    .HasNoKey()
+                    .ToView(nameof (EmployeeWithRestaurant));
+
         modelBuilder.Entity<Employee>()
                     .HasOne(e => e.Restaurant)
                     .WithMany(rest => rest.Employees)

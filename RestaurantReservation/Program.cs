@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using RestaurantReservation.Db.DTOs;
+﻿using RestaurantReservation.Db.DTOs;
 using RestaurantReservation.Db.Models;
 using RestaurantReservation.Db.Repositories;
 
@@ -16,10 +14,40 @@ namespace RestaurantReservation
             //await TestListManangers();
             //await TestListOrdersAndMenuItems();
             //await TestListOrderedMenuItems();
-
-
+            //await TestReservationWithCustomerAndRestaurantAsync();
+            await TestEmployeeWithRestaurantAsync();
         }
 
+        public static async Task TestEmployeeWithRestaurantAsync()
+        {
+            EmployeeRepository employeeRepository = new EmployeeRepository(new Db.RestaurantReservationDbContext());
+            var employees = await employeeRepository.GetAllEmployeeWithRestaurantAsync();
+
+            foreach (var employee in employees)
+            {
+                Console.WriteLine($"Restaurant: {employee.RestaurantName}, Address: {employee.RestaurantAddress}");
+                Console.WriteLine($"Restaurant Phone: {employee.RestaurantPhoneNumber}, Hours: {employee.OpeningHours}");
+                Console.WriteLine($"Employee: {employee.EmployeeName}, Position: {employee.Position}");
+                Console.WriteLine("--------------------------------------------------");
+            }
+        }
+
+        public static async Task TestReservationWithCustomerAndRestaurantAsync()
+        {
+            ReservationRepository reservationRepository = new ReservationRepository(new Db.RestaurantReservationDbContext());
+            var reservations = await reservationRepository.GetAllReservationWithCustomerAndRestaurantAsync();
+
+            foreach (var reservation in reservations)
+            {
+                Console.WriteLine($"Reservation ID: {reservation.ReservationId}");
+                Console.WriteLine($"Reservation Date: {reservation.ReservationDate}");
+                Console.WriteLine($"Party Size: {reservation.PartySize}");
+                Console.WriteLine($"Restaurant: {reservation.RestaurantName}, Address: {reservation.RestaurantAddress}");
+                Console.WriteLine($"Restaurant Phone: {reservation.RestaurantPhoneNumber}, Hours: {reservation.OpeningHours}");
+                Console.WriteLine($"Customer: {reservation.CustomerName}, Email: {reservation.CustomerEmail}, Phone: {reservation.CustomerPhoneNumber}");
+                Console.WriteLine("--------------------------------------------------");
+            }
+        }
         private static async Task TestListOrderedMenuItems()
         {
             OrderRepository orderRepository = new OrderRepository(new Db.RestaurantReservationDbContext());
@@ -75,11 +103,11 @@ namespace RestaurantReservation
             CustomerRepository customerRepository = new CustomerRepository(new Db.RestaurantReservationDbContext());
 
             await customerRepository.UpdateCustomerAsync(
-                customerId:6,
+                customerId: 6,
                 firstName: "John",
                 lastName: "Mendes",
-                email : "JohnMendes@gmail.com",
-                phoneNumber : "0597654189"
+                email: "JohnMendes@gmail.com",
+                phoneNumber: "0597654189"
             );
 
             foreach (Customer customer in await customerRepository.GetAllCustomersAsync())
