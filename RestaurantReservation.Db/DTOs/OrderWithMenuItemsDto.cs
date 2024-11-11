@@ -1,5 +1,5 @@
 ﻿namespace RestaurantReservation.Db.DTOs;
-public class OrderWithMenuItemsDto
+public record OrderWithMenuItemsDto
 {
     public int OrderId { get; set; }
     public DateTime OrderDate { get; set; }

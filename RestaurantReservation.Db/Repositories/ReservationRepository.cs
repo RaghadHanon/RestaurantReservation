@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RestaurantReservation.Db.DTOs;
 using RestaurantReservation.Db.Models;
 
 namespace RestaurantReservation.Db.Repositories;
@@ -115,7 +114,7 @@ public class ReservationRepository
             .ToListAsync();
     }
 
-    public async Task<List<ReservationWithCustomerAndRestaurantDto>> GetAllReservationWithCustomerAndRestaurantAsync()
+    public async Task<List<ReservationWithCustomerAndRestaurant>> GetAllReservationWithCustomerAndRestaurantAsync()
     {
         return await _dbContext.ReservationWithCustomerAndRestaurant.ToListAsync();
     }

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace RestaurantReservation.Db.DTOs;
-public class EmployeeWithRestaurantDto
+namespace RestaurantReservation.Db.Models;
+public record EmployeeWithRestaurant
 {
     [Required, MaxLength(200)]
     public string RestaurantName { get; set; }

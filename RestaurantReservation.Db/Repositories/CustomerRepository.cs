@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RestaurantReservation.Db.Models;
-using System.ComponentModel;
 
 namespace RestaurantReservation.Db.Repositories;
 public class CustomerRepository
@@ -28,7 +27,7 @@ public class CustomerRepository
             return false;
 
         var customer = await GetCustomerByIdAsync(customerId);
-        if (customer == null) 
+        if (customer == null)
             return false;
 
         _dbContext.Customers.Remove(customer);
@@ -36,7 +35,7 @@ public class CustomerRepository
         return true;
     }
 
-    public async Task<bool> UpdateCustomerAsync(int customerId,string? firstName=null,string? lastName=null,string? email=null,string? phoneNumber=null)
+    public async Task<bool> UpdateCustomerAsync(int customerId, string? firstName = null, string? lastName = null, string? email = null, string? phoneNumber = null)
     {
         if (customerId == 0)
             return false;

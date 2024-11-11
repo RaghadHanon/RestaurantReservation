@@ -14,7 +14,6 @@ public static class Configuration
             .Build();
     }
 
-
     public static string GetConnectionString(string name = "RestaurantReservationConnection")
     {
         return Config.GetConnectionString(name);

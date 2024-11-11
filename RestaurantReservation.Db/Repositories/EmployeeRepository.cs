@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using RestaurantReservation.Db.DTOs;
 using RestaurantReservation.Db.Models;
 
 namespace RestaurantReservation.Db.Repositories;
@@ -93,11 +92,21 @@ public class EmployeeRepository
 
     public async Task<List<Employee>> ListManagers()
     {
-        return await _dbContext.Employees.Where(e => e.Position == "Manager").ToListAsync();
+        return await _dbContext.Employees
+            .Include(e => e.Restaurant)
+            .Include(e => e.Orders)
+            .Where(e => e.Position == "Manager").ToListAsync();
     }
 
-    public async Task<List<EmployeeWithRestaurantDto>> GetAllEmployeeWithRestaurantAsync()
+    public async Task<List<EmployeeWithRestaurant>> GetAllEmployeeWithRestaurantAsync()
     {
         return await _dbContext.EmployeeWithRestaurant.ToListAsync();
+    }
+
+    public async Task<decimal> CalculateAverageOrderAmount(int employeeId)
+    {
+        return await _dbContext.Orders
+            .Where(o => o.EmployeeId == employeeId)
+            .AverageAsync(o => o.TotalAmount);
     }
 }

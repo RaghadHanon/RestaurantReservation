@@ -30,7 +30,7 @@ namespace RestaurantReservation.Db.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql(@"DROP VIEW EmployeeWithRestaurant");
+            migrationBuilder.Sql(@"DROP VIEW IF EXISTS  EmployeeWithRestaurant");
         }
     }
 }

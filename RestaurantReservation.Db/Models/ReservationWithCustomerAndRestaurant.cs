@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace RestaurantReservation.Db.DTOs;
-public class ReservationWithCustomerAndRestaurantDto
+namespace RestaurantReservation.Db.Models;
+public record ReservationWithCustomerAndRestaurant
 {
     public int ReservationId { get; set; }
     [Required]

@@ -134,11 +134,4 @@ public class OrderRepository
             })
             .ToListAsync();
     }
-
-    public async Task<decimal> CalculateAverageOrderAmount(int employeeId)
-    {
-        return await _dbContext.Orders
-            .Where(o => o.EmployeeId == employeeId)
-            .AverageAsync(o => o.TotalAmount);
-    }
 }

@@ -114,4 +114,19 @@ public class RestaurantRepository
             .Include(r => r.Orders)
             .ToListAsync();
     }
+
+    public async Task<decimal> GetTotalRevenueAsync(int restaurantId)
+    {
+        return await _dbContext.Restaurants
+            .Where(r => r.RestaurantId == restaurantId)
+            .Select(r => _dbContext.GetTotalRevenue(r.RestaurantId))
+            .SingleAsync();
+    }
+
+    public async Task<List<Customer>> FindCustomersByPartySizeAsync(int partySize)
+    {
+        return await _dbContext.Customers
+            .FromSqlInterpolated($"EXEC FindCustomersByPartySize @PartySize = {partySize}")
+            .ToListAsync();
+    }
 }

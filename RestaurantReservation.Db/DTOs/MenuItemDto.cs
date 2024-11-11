@@ -1,5 +1,5 @@
 ﻿namespace RestaurantReservation.Db.DTOs;
-public class MenuItemDto
+public record MenuItemDto
 {
     public int MenuItemId { get; set; }
     public string Name { get; set; }
