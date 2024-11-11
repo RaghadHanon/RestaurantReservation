@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RestaurantReservation.Db.Models;
+using System.ComponentModel;
 
 namespace RestaurantReservation.Db.Repositories;
 public class CustomerRepository

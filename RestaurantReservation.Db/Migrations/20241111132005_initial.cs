@@ -70,7 +70,7 @@ namespace RestaurantReservation.Db.Migrations
                 name: "MenuItems",
                 columns: table => new
                 {
-                    MenuItemId = table.Column<int>(type: "int", nullable: false)
+                    ItemId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RestaurantId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
@@ -79,7 +79,7 @@ namespace RestaurantReservation.Db.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MenuItems", x => x.MenuItemId);
+                    table.PrimaryKey("PK_MenuItems", x => x.ItemId);
                     table.ForeignKey(
                         name: "FK_MenuItems_Restaurants_RestaurantId",
                         column: x => x.RestaurantId,
@@ -181,7 +181,7 @@ namespace RestaurantReservation.Db.Migrations
                         name: "FK_OrderItems_MenuItems_ItemId",
                         column: x => x.ItemId,
                         principalTable: "MenuItems",
-                        principalColumn: "MenuItemId");
+                        principalColumn: "ItemId");
                     table.ForeignKey(
                         name: "FK_OrderItems_Orders_OrderId",
                         column: x => x.OrderId,
@@ -227,7 +227,7 @@ namespace RestaurantReservation.Db.Migrations
 
             migrationBuilder.InsertData(
                 table: "MenuItems",
-                columns: new[] { "MenuItemId", "Description", "Name", "Price", "RestaurantId" },
+                columns: new[] { "ItemId", "Description", "Name", "Price", "RestaurantId" },
                 values: new object[,]
                 {
                     { 1, "A juicy beef patty topped with cheddar cheese, lettuce, tomato, and pickles.", "Classic Cheeseburger", 8.99m, 1 },
@@ -254,11 +254,35 @@ namespace RestaurantReservation.Db.Migrations
                 columns: new[] { "ReservationId", "CustomerId", "PartySize", "ReservationDate", "RestaurantId", "TableId" },
                 values: new object[,]
                 {
-                    { 1, 1, 5, new DateTime(2024, 11, 11, 20, 43, 35, 81, DateTimeKind.Utc).AddTicks(7261), 1, 1 },
-                    { 2, 2, 10, new DateTime(2024, 11, 12, 20, 43, 35, 81, DateTimeKind.Utc).AddTicks(7268), 2, 3 },
-                    { 3, 3, 4, new DateTime(2024, 11, 13, 20, 43, 35, 81, DateTimeKind.Utc).AddTicks(7270), 3, 4 },
-                    { 4, 4, 2, new DateTime(2024, 11, 14, 20, 43, 35, 81, DateTimeKind.Utc).AddTicks(7271), 4, 5 },
-                    { 5, 5, 15, new DateTime(2024, 11, 15, 20, 43, 35, 81, DateTimeKind.Utc).AddTicks(7272), 5, 1 }
+                    { 1, 1, 5, new DateTime(2024, 11, 12, 13, 20, 5, 1, DateTimeKind.Utc).AddTicks(4710), 1, 1 },
+                    { 2, 2, 10, new DateTime(2024, 11, 13, 13, 20, 5, 1, DateTimeKind.Utc).AddTicks(4718), 2, 3 },
+                    { 3, 3, 4, new DateTime(2024, 11, 14, 13, 20, 5, 1, DateTimeKind.Utc).AddTicks(4719), 3, 4 },
+                    { 4, 4, 2, new DateTime(2024, 11, 15, 13, 20, 5, 1, DateTimeKind.Utc).AddTicks(4721), 4, 5 },
+                    { 5, 5, 15, new DateTime(2024, 11, 16, 13, 20, 5, 1, DateTimeKind.Utc).AddTicks(4722), 5, 1 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Orders",
+                columns: new[] { "OrderId", "EmployeeId", "OrderDate", "ReservationId", "TotalAmount" },
+                values: new object[,]
+                {
+                    { 1, 1, new DateTime(2024, 11, 11, 8, 20, 5, 1, DateTimeKind.Utc).AddTicks(4783), 1, 25.99m },
+                    { 2, 2, new DateTime(2024, 11, 11, 3, 20, 5, 1, DateTimeKind.Utc).AddTicks(4786), 2, 42.75m },
+                    { 3, 3, new DateTime(2024, 11, 11, 5, 20, 5, 1, DateTimeKind.Utc).AddTicks(4788), 3, 18.50m },
+                    { 4, 4, new DateTime(2024, 11, 11, 10, 20, 5, 1, DateTimeKind.Utc).AddTicks(4789), 4, 30.00m },
+                    { 5, 5, new DateTime(2024, 11, 11, 7, 20, 5, 1, DateTimeKind.Utc).AddTicks(4791), 5, 15.00m }
+                });
+
+            migrationBuilder.InsertData(
+                table: "OrderItems",
+                columns: new[] { "OrderItemId", "ItemId", "OrderId", "Quantity" },
+                values: new object[,]
+                {
+                    { 1, 1, 1, 2 },
+                    { 2, 2, 1, 1 },
+                    { 3, 3, 2, 1 },
+                    { 4, 4, 3, 2 },
+                    { 5, 5, 4, 1 }
                 });
 
             migrationBuilder.CreateIndex(

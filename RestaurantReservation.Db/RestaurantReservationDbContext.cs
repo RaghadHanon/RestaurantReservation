@@ -118,11 +118,11 @@ public class RestaurantReservationDbContext : DbContext
         );
 
         modelBuilder.Entity<MenuItem>().HasData(
-            new MenuItem { MenuItemId = 1, RestaurantId = 1, Name = "Classic Cheeseburger", Description = "A juicy beef patty topped with cheddar cheese, lettuce, tomato, and pickles.", Price = 8.99m },
-            new MenuItem { MenuItemId = 2, RestaurantId = 1, Name = "Caesar Salad", Description = "Romaine lettuce, croutons, parmesan cheese, and Caesar dressing.", Price = 6.50m },
-            new MenuItem { MenuItemId = 3, RestaurantId = 2, Name = "Margherita Pizza", Description = "Traditional pizza topped with fresh mozzarella, basil, and tomato sauce.", Price = 11.99m },
-            new MenuItem { MenuItemId = 4, RestaurantId = 2, Name = "Spaghetti Carbonara", Description = "Classic Italian pasta with pancetta, egg, and parmesan cheese.", Price = 13.50m },
-            new MenuItem { MenuItemId = 5, RestaurantId = 3, Name = "Grilled Salmon", Description = "Salmon fillet grilled to perfection, served with steamed vegetables.", Price = 16.99m }
+            new MenuItem { ItemId = 1, RestaurantId = 1, Name = "Classic Cheeseburger", Description = "A juicy beef patty topped with cheddar cheese, lettuce, tomato, and pickles.", Price = 8.99m },
+            new MenuItem { ItemId = 2, RestaurantId = 1, Name = "Caesar Salad", Description = "Romaine lettuce, croutons, parmesan cheese, and Caesar dressing.", Price = 6.50m },
+            new MenuItem { ItemId = 3, RestaurantId = 2, Name = "Margherita Pizza", Description = "Traditional pizza topped with fresh mozzarella, basil, and tomato sauce.", Price = 11.99m },
+            new MenuItem { ItemId = 4, RestaurantId = 2, Name = "Spaghetti Carbonara", Description = "Classic Italian pasta with pancetta, egg, and parmesan cheese.", Price = 13.50m },
+            new MenuItem { ItemId = 5, RestaurantId = 3, Name = "Grilled Salmon", Description = "Salmon fillet grilled to perfection, served with steamed vegetables.", Price = 16.99m }
         );
 
         modelBuilder.Entity<Reservation>().HasData(
@@ -131,6 +131,22 @@ public class RestaurantReservationDbContext : DbContext
             new Reservation { ReservationId = 3, CustomerId = 3, RestaurantId = 3, TableId = 4, ReservationDate = DateTime.UtcNow.AddDays(3), PartySize = 4 },
             new Reservation { ReservationId = 4, CustomerId = 4, RestaurantId = 4, TableId = 5, ReservationDate = DateTime.UtcNow.AddDays(4), PartySize = 2 },
             new Reservation { ReservationId = 5, CustomerId = 5, RestaurantId = 5, TableId = 1, ReservationDate = DateTime.UtcNow.AddDays(5), PartySize = 15 }
+        );
+
+        modelBuilder.Entity<Order>().HasData(
+            new Order { OrderId = 1, ReservationId = 1, EmployeeId = 1, OrderDate = DateTime.UtcNow.AddHours(-5), TotalAmount = 25.99m },
+            new Order { OrderId = 2, ReservationId = 2, EmployeeId = 2, OrderDate = DateTime.UtcNow.AddHours(-10), TotalAmount = 42.75m },
+            new Order { OrderId = 3, ReservationId = 3, EmployeeId = 3, OrderDate = DateTime.UtcNow.AddHours(-8), TotalAmount = 18.50m },
+            new Order { OrderId = 4, ReservationId = 4, EmployeeId = 4, OrderDate = DateTime.UtcNow.AddHours(-3), TotalAmount = 30.00m },
+            new Order { OrderId = 5, ReservationId = 5, EmployeeId = 5, OrderDate = DateTime.UtcNow.AddHours(-6), TotalAmount = 15.00m }
+        );
+
+        modelBuilder.Entity<OrderItem>().HasData(
+            new OrderItem { OrderItemId = 1, OrderId = 1, ItemId = 1, Quantity = 2 },
+            new OrderItem { OrderItemId = 2, OrderId = 1, ItemId = 2, Quantity = 1 },
+            new OrderItem { OrderItemId = 3, OrderId = 2, ItemId = 3, Quantity = 1 },
+            new OrderItem { OrderItemId = 4, OrderId = 3, ItemId = 4, Quantity = 2 },
+            new OrderItem { OrderItemId = 5, OrderId = 4, ItemId = 5, Quantity = 1 }
         );
     }
 }

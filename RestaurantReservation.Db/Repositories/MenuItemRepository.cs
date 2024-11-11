@@ -73,7 +73,7 @@ public class MenuItemRepository
         return await _dbContext.MenuItems
             .Include(m => m.Restaurant)
             .Include(m => m.OrderItems)
-            .FirstOrDefaultAsync(m => m.MenuItemId == menuItemId);
+            .FirstOrDefaultAsync(m => m.ItemId == menuItemId);
     }
 
     public async Task<List<MenuItem>> GetMenuItemsByRestaurantAsync(int restaurantId)

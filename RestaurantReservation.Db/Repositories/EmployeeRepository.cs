@@ -89,4 +89,9 @@ public class EmployeeRepository
             .Where(e => e.Position == position)
             .ToListAsync();
     }
+
+    public async Task<List<Employee>> ListManagers()
+    {
+        return await _dbContext.Employees.Where(e => e.Position == "Manager").ToListAsync();
+    }
 }

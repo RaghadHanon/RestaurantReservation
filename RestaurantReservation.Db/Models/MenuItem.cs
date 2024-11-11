@@ -4,7 +4,7 @@ namespace RestaurantReservation.Db.Models;
 public class MenuItem
 {
     [Key]
-    public int MenuItemId { get; set; }
+    public int ItemId { get; set; }
     [Required]
     public int RestaurantId { get; set; }
     [Required, MaxLength(100)]

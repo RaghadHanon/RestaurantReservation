@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RestaurantReservation.Db.DTOs;
 using RestaurantReservation.Db.Models;
 
 namespace RestaurantReservation.Db.Repositories;
@@ -93,5 +94,51 @@ public class OrderRepository
             .Include(o => o.Reservation)
             .Include(o => o.OrderItems)
             .ToListAsync();
+    }
+
+    public async Task<List<OrderWithMenuItemsDto>> ListOrdersAndMenuItems(int reservationId)
+    {
+        return await _dbContext.Orders
+            .Where(o => o.ReservationId == reservationId)
+            .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.MenuItem)
+            .Select(o => new OrderWithMenuItemsDto
+            {
+                OrderId = o.OrderId,
+                OrderDate = o.OrderDate,
+                TotalAmount = o.TotalAmount,
+                MenuItems = o.OrderItems.Select(oi => new MenuItemDto
+                {
+                    MenuItemId = oi.MenuItem.ItemId,
+                    Name = oi.MenuItem.Name,
+                    Description = oi.MenuItem.Description,
+                    Price = oi.MenuItem.Price,
+                    Quantity = oi.Quantity
+                }).ToList()
+            })
+            .ToListAsync();
+    }
+
+    public async Task<List<MenuItemDto>> ListOrderedMenuItems(int reservationId)
+    {
+        return await _dbContext.OrderItems
+            .Where(oi => oi.Order.ReservationId == reservationId)
+            .Include(oi => oi.MenuItem)
+            .Select(oi => new MenuItemDto
+            {
+                MenuItemId = oi.MenuItem.ItemId,
+                Name = oi.MenuItem.Name,
+                Description = oi.MenuItem.Description,
+                Price = oi.MenuItem.Price,
+                Quantity = oi.Quantity
+            })
+            .ToListAsync();
+    }
+
+    public async Task<decimal> CalculateAverageOrderAmount(int employeeId)
+    {
+        return await _dbContext.Orders
+            .Where(o => o.EmployeeId == employeeId)
+            .AverageAsync(o => o.TotalAmount);
     }
 }

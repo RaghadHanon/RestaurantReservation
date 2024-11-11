@@ -173,11 +173,11 @@ namespace RestaurantReservation.Db.Migrations
 
             modelBuilder.Entity("RestaurantReservation.Db.Models.MenuItem", b =>
                 {
-                    b.Property<int>("MenuItemId")
+                    b.Property<int>("ItemId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MenuItemId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ItemId"));
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -195,7 +195,7 @@ namespace RestaurantReservation.Db.Migrations
                     b.Property<int>("RestaurantId")
                         .HasColumnType("int");
 
-                    b.HasKey("MenuItemId");
+                    b.HasKey("ItemId");
 
                     b.HasIndex("RestaurantId");
 
@@ -204,7 +204,7 @@ namespace RestaurantReservation.Db.Migrations
                     b.HasData(
                         new
                         {
-                            MenuItemId = 1,
+                            ItemId = 1,
                             Description = "A juicy beef patty topped with cheddar cheese, lettuce, tomato, and pickles.",
                             Name = "Classic Cheeseburger",
                             Price = 8.99m,
@@ -212,7 +212,7 @@ namespace RestaurantReservation.Db.Migrations
                         },
                         new
                         {
-                            MenuItemId = 2,
+                            ItemId = 2,
                             Description = "Romaine lettuce, croutons, parmesan cheese, and Caesar dressing.",
                             Name = "Caesar Salad",
                             Price = 6.50m,
@@ -220,7 +220,7 @@ namespace RestaurantReservation.Db.Migrations
                         },
                         new
                         {
-                            MenuItemId = 3,
+                            ItemId = 3,
                             Description = "Traditional pizza topped with fresh mozzarella, basil, and tomato sauce.",
                             Name = "Margherita Pizza",
                             Price = 11.99m,
@@ -228,7 +228,7 @@ namespace RestaurantReservation.Db.Migrations
                         },
                         new
                         {
-                            MenuItemId = 4,
+                            ItemId = 4,
                             Description = "Classic Italian pasta with pancetta, egg, and parmesan cheese.",
                             Name = "Spaghetti Carbonara",
                             Price = 13.50m,
@@ -236,7 +236,7 @@ namespace RestaurantReservation.Db.Migrations
                         },
                         new
                         {
-                            MenuItemId = 5,
+                            ItemId = 5,
                             Description = "Salmon fillet grilled to perfection, served with steamed vegetables.",
                             Name = "Grilled Salmon",
                             Price = 16.99m,
@@ -271,6 +271,48 @@ namespace RestaurantReservation.Db.Migrations
                     b.HasIndex("ReservationId");
 
                     b.ToTable("Orders");
+
+                    b.HasData(
+                        new
+                        {
+                            OrderId = 1,
+                            EmployeeId = 1,
+                            OrderDate = new DateTime(2024, 11, 11, 8, 20, 5, 1, DateTimeKind.Utc).AddTicks(4783),
+                            ReservationId = 1,
+                            TotalAmount = 25.99m
+                        },
+                        new
+                        {
+                            OrderId = 2,
+                            EmployeeId = 2,
+                            OrderDate = new DateTime(2024, 11, 11, 3, 20, 5, 1, DateTimeKind.Utc).AddTicks(4786),
+                            ReservationId = 2,
+                            TotalAmount = 42.75m
+                        },
+                        new
+                        {
+                            OrderId = 3,
+                            EmployeeId = 3,
+                            OrderDate = new DateTime(2024, 11, 11, 5, 20, 5, 1, DateTimeKind.Utc).AddTicks(4788),
+                            ReservationId = 3,
+                            TotalAmount = 18.50m
+                        },
+                        new
+                        {
+                            OrderId = 4,
+                            EmployeeId = 4,
+                            OrderDate = new DateTime(2024, 11, 11, 10, 20, 5, 1, DateTimeKind.Utc).AddTicks(4789),
+                            ReservationId = 4,
+                            TotalAmount = 30.00m
+                        },
+                        new
+                        {
+                            OrderId = 5,
+                            EmployeeId = 5,
+                            OrderDate = new DateTime(2024, 11, 11, 7, 20, 5, 1, DateTimeKind.Utc).AddTicks(4791),
+                            ReservationId = 5,
+                            TotalAmount = 15.00m
+                        });
                 });
 
             modelBuilder.Entity("RestaurantReservation.Db.Models.OrderItem", b =>
@@ -297,6 +339,43 @@ namespace RestaurantReservation.Db.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("OrderItems");
+
+                    b.HasData(
+                        new
+                        {
+                            OrderItemId = 1,
+                            ItemId = 1,
+                            OrderId = 1,
+                            Quantity = 2
+                        },
+                        new
+                        {
+                            OrderItemId = 2,
+                            ItemId = 2,
+                            OrderId = 1,
+                            Quantity = 1
+                        },
+                        new
+                        {
+                            OrderItemId = 3,
+                            ItemId = 3,
+                            OrderId = 2,
+                            Quantity = 1
+                        },
+                        new
+                        {
+                            OrderItemId = 4,
+                            ItemId = 4,
+                            OrderId = 3,
+                            Quantity = 2
+                        },
+                        new
+                        {
+                            OrderItemId = 5,
+                            ItemId = 5,
+                            OrderId = 4,
+                            Quantity = 1
+                        });
                 });
 
             modelBuilder.Entity("RestaurantReservation.Db.Models.Reservation", b =>
@@ -338,7 +417,7 @@ namespace RestaurantReservation.Db.Migrations
                             ReservationId = 1,
                             CustomerId = 1,
                             PartySize = 5,
-                            ReservationDate = new DateTime(2024, 11, 11, 20, 43, 35, 81, DateTimeKind.Utc).AddTicks(7261),
+                            ReservationDate = new DateTime(2024, 11, 12, 13, 20, 5, 1, DateTimeKind.Utc).AddTicks(4710),
                             RestaurantId = 1,
                             TableId = 1
                         },
@@ -347,7 +426,7 @@ namespace RestaurantReservation.Db.Migrations
                             ReservationId = 2,
                             CustomerId = 2,
                             PartySize = 10,
-                            ReservationDate = new DateTime(2024, 11, 12, 20, 43, 35, 81, DateTimeKind.Utc).AddTicks(7268),
+                            ReservationDate = new DateTime(2024, 11, 13, 13, 20, 5, 1, DateTimeKind.Utc).AddTicks(4718),
                             RestaurantId = 2,
                             TableId = 3
                         },
@@ -356,7 +435,7 @@ namespace RestaurantReservation.Db.Migrations
                             ReservationId = 3,
                             CustomerId = 3,
                             PartySize = 4,
-                            ReservationDate = new DateTime(2024, 11, 13, 20, 43, 35, 81, DateTimeKind.Utc).AddTicks(7270),
+                            ReservationDate = new DateTime(2024, 11, 14, 13, 20, 5, 1, DateTimeKind.Utc).AddTicks(4719),
                             RestaurantId = 3,
                             TableId = 4
                         },
@@ -365,7 +444,7 @@ namespace RestaurantReservation.Db.Migrations
                             ReservationId = 4,
                             CustomerId = 4,
                             PartySize = 2,
-                            ReservationDate = new DateTime(2024, 11, 14, 20, 43, 35, 81, DateTimeKind.Utc).AddTicks(7271),
+                            ReservationDate = new DateTime(2024, 11, 15, 13, 20, 5, 1, DateTimeKind.Utc).AddTicks(4721),
                             RestaurantId = 4,
                             TableId = 5
                         },
@@ -374,7 +453,7 @@ namespace RestaurantReservation.Db.Migrations
                             ReservationId = 5,
                             CustomerId = 5,
                             PartySize = 15,
-                            ReservationDate = new DateTime(2024, 11, 15, 20, 43, 35, 81, DateTimeKind.Utc).AddTicks(7272),
+                            ReservationDate = new DateTime(2024, 11, 16, 13, 20, 5, 1, DateTimeKind.Utc).AddTicks(4722),
                             RestaurantId = 5,
                             TableId = 1
                         });
