@@ -52,7 +52,7 @@ public class CustomersController : ControllerBase
         var customer = await _customerRepository.GetCustomerAsync(customerId, includeReservations);
         if (customer == null)
         {
-            return NotFound(Errors.CustomerNotFound);
+            return NotFound(ApiErrors.CustomerNotFound);
         }
 
         return includeReservations
@@ -99,7 +99,7 @@ public class CustomersController : ControllerBase
         var customerEntity = await _customerRepository.GetCustomerAsync(customerId);
         if (customerEntity == null)
         {
-            return NotFound(Errors.CustomerNotFound);
+            return NotFound(ApiErrors.CustomerNotFound);
         }
 
         _mapper.Map(customer, customerEntity);
@@ -126,7 +126,7 @@ public class CustomersController : ControllerBase
         var customerEntity = await _customerRepository.GetCustomerAsync(customerId);
         if (customerEntity == null)
         {
-            return NotFound(Errors.CustomerNotFound);
+            return NotFound(ApiErrors.CustomerNotFound);
         }
 
         try
@@ -136,7 +136,7 @@ public class CustomersController : ControllerBase
         }
         catch (Exception)
         {
-            return NotFound(Errors.DeletionIsInvalid);
+            return NotFound(ApiErrors.DeletionIsInvalid);
         }
 
         return NoContent();

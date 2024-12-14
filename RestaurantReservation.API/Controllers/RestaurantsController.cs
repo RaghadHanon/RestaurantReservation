@@ -50,7 +50,7 @@ public class RestaurantsController : ControllerBase
     {
         if (restaurantDto == null)
         {
-            return BadRequest(Errors.DataIsNull);
+            return BadRequest(ApiErrors.DataIsNull);
         }
 
         var newRestaurant = _mapper.Map<Restaurant>(restaurantDto);
@@ -66,7 +66,7 @@ public class RestaurantsController : ControllerBase
     {
         if (restaurantDto == null)
         {
-            return BadRequest(Errors.DataIsNull);
+            return BadRequest(ApiErrors.DataIsNull);
         }
 
         var restaurant = await _restaurantRepository.GetRestaurantAsync(id);

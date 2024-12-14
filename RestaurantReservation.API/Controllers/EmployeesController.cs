@@ -54,7 +54,7 @@ public class EmployeesController : ControllerBase
         var employee = await _employeeRepository.GetEmployeeAsync(employeeId);
         if (employee == null)
         {
-            return NotFound(Errors.EmployeeNotFound);
+            return NotFound(ApiErrors.EmployeeNotFound);
         }
 
         return Ok(includeOrders ? _mapper.Map<EmployeeWithOrdersDto>(employee) : _mapper.Map<EmployeeDto>(employee));
@@ -89,7 +89,7 @@ public class EmployeesController : ControllerBase
 
         if (averageOrderAmount == null)
         {
-            return NotFound(Errors.EmployeeNotFound);
+            return NotFound(ApiErrors.EmployeeNotFound);
         }
 
         return Ok(new { AverageOrderAmount = averageOrderAmount });
@@ -135,13 +135,13 @@ public class EmployeesController : ControllerBase
         var employeeEntity = await _employeeRepository.GetEmployeeAsync(employeeId);
         if (employeeEntity == null)
         {
-            return NotFound(Errors.EmployeeNotFound);
+            return NotFound(ApiErrors.EmployeeNotFound);
         }
 
         var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(employeeForUpdate.RestaurantId);
         if (!restaurantExists)
         {
-            return NotFound(Errors.RestaurantNotFound);
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
         _mapper.Map(employeeForUpdate, employeeEntity);
@@ -167,7 +167,7 @@ public class EmployeesController : ControllerBase
         var employeeEntity = await _employeeRepository.GetEmployeeAsync(employeeId);
         if (employeeEntity == null)
         {
-            return NotFound(Errors.EmployeeNotFound);
+            return NotFound(ApiErrors.EmployeeNotFound);
         }
 
         try
@@ -177,7 +177,7 @@ public class EmployeesController : ControllerBase
         }
         catch (Exception)
         {
-            return BadRequest(Errors.DeletionIsInvalid);
+            return BadRequest(ApiErrors.DeletionIsInvalid);
         }
 
         return NoContent();

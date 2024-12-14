@@ -43,7 +43,7 @@ public class TablesController : ControllerBase
         var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
         if (!restaurantExists)
         {
-            return NotFound(ApiErrors.);
+            return NotFound(ApiErrors.ResturantNotFound);
         }
 
         var tables = await _tablesRepository.GetTablesInRestaurantAsync(restaurantId);

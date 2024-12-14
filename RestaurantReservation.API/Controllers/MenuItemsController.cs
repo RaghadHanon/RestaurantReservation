@@ -40,7 +40,7 @@ public class MenuItemsController : ControllerBase
         var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
         if (!restaurantExists)
         {
-            return NotFound(Errors.RestaurantNotFound);
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
         var menuItems = await _menuItemRepository.GetMenuItemsInRestaurantAsync(restaurantId);
@@ -63,13 +63,13 @@ public class MenuItemsController : ControllerBase
         var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
         if (!restaurantExists)
         {
-            return NotFound(Errors.RestaurantNotFound);
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
         var menuItem = await _menuItemRepository.GetMenuItemAsync(restaurantId, menuItemId);
         if (menuItem == null)
         {
-            return NotFound(Errors.MenuItemNotFound);
+            return NotFound(ApiErrors.MenuItemNotFound);
         }
 
         return Ok(_mapper.Map<MenuItemDto>(menuItem));
@@ -91,7 +91,7 @@ public class MenuItemsController : ControllerBase
         var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
         if (!restaurantExists)
         {
-            return NotFound(Errors.RestaurantNotFound);
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
         var menuItemEntity = _mapper.Map<MenuItem>(menuItemForCreation);
@@ -124,19 +124,19 @@ public class MenuItemsController : ControllerBase
         var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
         if (!restaurantExists)
         {
-            return NotFound(Errors.RestaurantNotFound);
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
         var menuItemEntity = await _menuItemRepository.GetMenuItemAsync(restaurantId, menuItemId);
         if (menuItemEntity == null)
         {
-            return NotFound(Errors.MenuItemNotFound);
+            return NotFound(ApiErrors.MenuItemNotFound);
         }
 
         var targetRestaurantExists = await _restaurantRepository.RestaurantExistsAsync(menuItemForUpdate.RestaurantId);
         if (!targetRestaurantExists)
         {
-            return NotFound($"Target {Errors.RestaurantNotFound}");
+            return NotFound($"Target {ApiErrors.RestaurantNotFound}");
         }
 
         _mapper.Map(menuItemForUpdate, menuItemEntity);
@@ -164,13 +164,13 @@ public class MenuItemsController : ControllerBase
         var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
         if (!restaurantExists)
         {
-            return NotFound(Errors.RestaurantNotFound);
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
         var menuItemEntity = await _menuItemRepository.GetMenuItemAsync(restaurantId, menuItemId);
         if (menuItemEntity == null)
         {
-            return NotFound(Errors.MenuItemNotFound);
+            return NotFound(ApiErrors.MenuItemNotFound);
         }
 
         var menuItemToPatch = _mapper.Map<MenuItemUpdateDto>(menuItemEntity);
@@ -178,7 +178,7 @@ public class MenuItemsController : ControllerBase
         var targetRestaurantExists = await _restaurantRepository.RestaurantExistsAsync(menuItemToPatch.RestaurantId);
         if (!targetRestaurantExists)
         {
-            return NotFound($"Target {Errors.RestaurantNotFound}");
+            return NotFound($"Target {ApiErrors.RestaurantNotFound}");
         }
 
         if (!ModelState.IsValid || !TryValidateModel(menuItemToPatch))
@@ -210,13 +210,13 @@ public class MenuItemsController : ControllerBase
         var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
         if (!restaurantExists)
         {
-            return NotFound(Errors.RestaurantNotFound);
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
         var menuItemEntity = await _menuItemRepository.GetMenuItemAsync(restaurantId, menuItemId);
         if (menuItemEntity == null)
         {
-            return NotFound(Errors.MenuItemNotFound);
+            return NotFound(ApiErrors.MenuItemNotFound);
         }
 
         try
@@ -226,7 +226,7 @@ public class MenuItemsController : ControllerBase
         }
         catch (Exception)
         {
-            return BadRequest(Errors.DeletionIsInvalid);
+            return BadRequest(ApiErrors.DeletionIsInvalid);
         }
         return NoContent();
     }

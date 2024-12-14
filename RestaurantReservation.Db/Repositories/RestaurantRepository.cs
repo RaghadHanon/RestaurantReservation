@@ -56,7 +56,7 @@ public class RestaurantRepository : IRestaurantRepository
     public async Task<int?> GetRestaurantIdByMenuItemIdAsync(int menuItemId)
     {
         return await _context.MenuItems
-            .Where(mi => mi.MenuItemId == menuItemId)
+            .Where(mi => mi.ItemId == menuItemId)
             .Select(mi => mi.RestaurantId)
             .FirstOrDefaultAsync();
     }

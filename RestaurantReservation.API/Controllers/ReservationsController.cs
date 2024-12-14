@@ -67,19 +67,19 @@ public class ReservationsController : ControllerBase
     {
         if (reservationDto == null)
         {
-            return BadRequest(Errors.DataIsNull);
+            return BadRequest(ApiErrors.DataIsNull);
         }
 
         var customer = await _customerRepository.GetCustomerAsync(reservationDto.CustomerId);
         if (customer == null)
         {
-            return BadRequest(Errors.DataIsInvalid);
+            return BadRequest(ApiErrors.DataIsInvalid);
         }
 
         var restaurant = await _restaurantRepository.GetRestaurantAsync(reservationDto.RestaurantId);
         if (restaurant == null)
         {
-            return BadRequest(Errors.DataIsInvalid);
+            return BadRequest(ApiErrors.DataIsInvalid);
         }
 
         var reservation = _mapper.Map<Reservation>(reservationDto);
@@ -101,7 +101,7 @@ public class ReservationsController : ControllerBase
     {
         if (reservationDto == null)
         {
-            return BadRequest(Errors.DataIsNull);
+            return BadRequest(ApiErrors.DataIsNull);
         }
 
         var reservation = await _reservationRepository.GetReservationAsync(id);

@@ -1,7 +1,6 @@
 ﻿using AuthenticationService;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantReservation.API.Models.OrderItem;
 using RestaurantReservation.API.Utilities;
@@ -51,12 +50,12 @@ public class OrderItemsController : ControllerBase
         var orderExists = await _orderRepository.OrderExistsAsync(reservationId, orderId);
         if (!reservationExists)
         {
-            return NotFound(Errors.ReservationNotFound);
+            return NotFound(ApiErrors.ReservationNotFound);
         }
 
         if (!orderExists)
         {
-            return NotFound(Errors.OrderNotFound);
+            return NotFound(ApiErrors.OrderNotFound);
         }
 
         var orderItems = await _orderItemRepository.GetOrderItemsForOrderAsync(reservationId, orderId);
@@ -82,18 +81,18 @@ public class OrderItemsController : ControllerBase
 
         if (!reservationExists)
         {
-            return NotFound(Errors.ReservationNotFound);
+            return NotFound(ApiErrors.ReservationNotFound);
         }
 
         if (!orderExists)
         {
-            return NotFound(Errors.OrderNotFound);
+            return NotFound(ApiErrors.OrderNotFound);
         }
 
         var orderItem = await _orderItemRepository.GetOrderItemAsync(reservationId, orderId, orderItemId);
         if (orderItem == null)
         {
-            return NotFound(Errors.OrderItemNotFound);
+            return NotFound(ApiErrors.OrderItemNotFound);
         }
 
         return Ok(_mapper.Map<OrderItemDto>(orderItem));
@@ -120,32 +119,42 @@ public class OrderItemsController : ControllerBase
 
         if (!reservationExists)
         {
-            return NotFound(Errors.ReservationNotFound);
+            return NotFound(ApiErrors.ReservationNotFound);
         }
 
         if (!orderExists)
         {
-            return NotFound(Errors.OrderNotFound);
+            return NotFound(ApiErrors.OrderNotFound);
         }
 
         var restaurantForReservation = await _restaurantRepository.GetRestaurantIdByReservationIdAsync(reservationId);
         var restaurantForMenuItem = await _restaurantRepository.GetRestaurantIdByMenuItemIdAsync(orderItemForCreation.ItemId);
 
-        if (restaurantForReservation == null ||
-            restaurantForMenuItem == null ||
-            restaurantForMenuItem != restaurantForReservation)
+        if (restaurantForReservation == null)
         {
-            return NotFound("Reservation is not consistent with MenuItem.");
+            return NotFound($"{ApiErrors.RestaurantNotFound} for reservation {reservationId}");
+        }
+
+        if (restaurantForMenuItem == null)
+        {
+            return NotFound($"{ApiErrors.RestaurantNotFound} for MenuItem {orderItemForCreation.ItemId}");
+        }
+
+        if (restaurantForMenuItem != restaurantForReservation)
+        {
+            return NotFound(ApiErrors.ReservationInconsistentWithMenuItem);
         }
 
         var orderItemEntity = _mapper.Map<OrderItem>(orderItemForCreation);
         _orderItemRepository.AddOrderItemToOrder(orderId, orderItemEntity);
-
         await _orderItemRepository.SaveChangesAsync(orderId);
 
         return CreatedAtRoute("GetOrderItem",
-            new { reservationId, orderId, orderItemId = orderItemEntity.OrderItemId },
-            _mapper.Map<OrderItemDto>(orderItemEntity));
+            new {
+                reservationId,
+                orderId,
+                orderItemId = orderItemEntity.OrderItemId 
+            }, _mapper.Map<OrderItemDto>(orderItemEntity));
     }
 
     /// <summary>
@@ -164,34 +173,48 @@ public class OrderItemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> PutOrderItem(int reservationId, int orderId, int orderItemId,
-        OrderItemForCreationOrUpdateDto orderItemForUpdate)
+        OrderItemUpdateDto orderItemForUpdate)
     {
         var reservationExists = await _reservationRepository.ReservationExistsAsync(reservationId);
         var orderExists = await _orderRepository.OrderExistsAsync(reservationId, orderId);
 
-        if (!reservationExists || !orderExists)
+        if (!reservationExists)
         {
-            return NotFound("Invalid reservation or order Id");
+            return NotFound(ApiErrors.ReservationNotFound);
+        }
+
+        if (!orderExists)
+        {
+            return NotFound(ApiErrors.OrderNotFound);
         }
 
         var orderItemEntity = await _orderItemRepository.GetOrderItemAsync(reservationId, orderId, orderItemId);
         if (orderItemEntity == null)
         {
-            return NotFound("OrderItem not found.");
+            return NotFound(ApiErrors.OrderItemNotFound);
         }
 
         var restaurantForReservation = await _restaurantRepository.GetRestaurantIdByReservationIdAsync(reservationId);
-        var restaurantForMenuItem = await _restaurantRepository.GetRestaurantIdByMenuItemIdAsync(orderItemForUpdate.MenuItemId);
+        var restaurantForMenuItem = await _restaurantRepository.GetRestaurantIdByMenuItemIdAsync(orderItemForUpdate.ItemId);
 
-        if (restaurantForReservation == null ||
-            restaurantForMenuItem == null ||
-            restaurantForMenuItem != restaurantForReservation)
+        if (restaurantForReservation == null)
         {
-            return NotFound("Reservation is not consistent with MenuItem.");
+
+            return NotFound($"{ApiErrors.RestaurantNotFound} for reservation {reservationId}");
+        }
+
+        if (restaurantForMenuItem == null)
+        {
+
+            return NotFound($"{ApiErrors.RestaurantNotFound} for MenuItem {orderItemEntity.ItemId}");
+        }
+
+        if (restaurantForMenuItem != restaurantForReservation)
+        {
+            return NotFound(ApiErrors.ReservationInconsistentWithMenuItem);
         }
 
         _mapper.Map(orderItemForUpdate, orderItemEntity);
-
         await _orderItemRepository.SaveChangesAsync(orderId);
 
         return NoContent();
@@ -215,15 +238,20 @@ public class OrderItemsController : ControllerBase
         var reservationExists = await _reservationRepository.ReservationExistsAsync(reservationId);
         var orderExists = await _orderRepository.OrderExistsAsync(reservationId, orderId);
 
-        if (!reservationExists || !orderExists)
+        if (!reservationExists)
         {
-            return NotFound("Invalid reservation or order Id");
+            return NotFound(ApiErrors.ReservationNotFound);
+        }
+
+        if (!orderExists)
+        {
+            return NotFound(ApiErrors.OrderNotFound);
         }
 
         var orderItemEntity = await _orderItemRepository.GetOrderItemAsync(reservationId, orderId, orderItemId);
         if (orderItemEntity == null)
         {
-            return NotFound("OrderItem not found");
+            return NotFound(ApiErrors.OrderItemNotFound);
         }
 
         _orderItemRepository.DeleteOrderItem(orderItemEntity);
