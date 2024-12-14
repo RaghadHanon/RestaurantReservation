@@ -1,132 +1,85 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RestaurantReservation.Db.Models;
+using RestaurantReservation.Db.Entities;
+using RestaurantReservation.Db.Interfaces;
 
 namespace RestaurantReservation.Db.Repositories;
 
-public class RestaurantRepository
+public class RestaurantRepository : IRestaurantRepository
 {
-    private readonly RestaurantReservationDbContext _dbContext;
+    private readonly RestaurantReservationDbContext _context;
 
-    public RestaurantRepository(RestaurantReservationDbContext dbContext)
+    public RestaurantRepository(RestaurantReservationDbContext context)
     {
-        _dbContext = dbContext;
+        _context = context;
     }
 
-    public async Task<Restaurant?> AddRestaurantAsync(Restaurant restaurant)
+    public async Task<bool> RestaurantExistsAsync(int id)
     {
-        if (restaurant == null)
-            return null;
+        return await _context.Restaurants.AnyAsync(c => c.RestaurantId == id);
+    }
+    public async Task<IEnumerable<Restaurant>> GetAllRestaurantsAsync()
+    {
+        return await _context.Restaurants.ToListAsync();
+    }
 
-        await _dbContext.Restaurants.AddAsync(restaurant);
-        await _dbContext.SaveChangesAsync();
+    public async Task<Restaurant?> GetRestaurantAsync(int id, bool includeEmployees = false,
+        bool includeMenuItems = false)
+    {
+        var restaurant = await _context.Restaurants.FirstOrDefaultAsync(c => c.RestaurantId == id);
+        if (restaurant == null)
+        {
+            return null;
+        }
+
+        if (includeEmployees)
+        {
+            await _context.Entry(restaurant).Collection(r => r.Employees).LoadAsync();
+        }
+        if (includeMenuItems)
+        {
+            await _context.Entry(restaurant).Collection(r => r.MenuItems).LoadAsync();
+        }
+
+        return restaurant;
+    }
+    public Restaurant CreateRestaurant(Restaurant restaurant)
+    {
+        _context.Restaurants.Add(restaurant);
         return restaurant;
     }
 
-    public async Task<bool> RemoveRestaurantAsync(int restaurantId)
+    public void DeleteRestaurant(Restaurant restaurant)
     {
-        if (restaurantId == 0)
-            return false;
-
-        var restaurant = await GetRestaurantByIdAsync(restaurantId);
-        if (restaurant == null)
-            return false;
-
-        _dbContext.Restaurants.Remove(restaurant);
-        await _dbContext.SaveChangesAsync();
-        return true;
+        _context.Restaurants.Remove(restaurant);
     }
 
-    public async Task<bool> UpdateRestaurantAsync(int restaurantId, string? name = null, string? address = null, string? phoneNumber = null, string? openingHours = null)
+    public async Task<int?> GetRestaurantIdByMenuItemIdAsync(int menuItemId)
     {
-        if (restaurantId == 0)
-            return false;
-
-        var restaurant = await GetRestaurantByIdAsync(restaurantId);
-        if (restaurant == null)
-            return false;
-
-        if (!string.IsNullOrEmpty(name))
-            restaurant.Name = name;
-
-        if (!string.IsNullOrEmpty(address))
-            restaurant.Address = address;
-
-        if (!string.IsNullOrEmpty(phoneNumber))
-            restaurant.PhoneNumber = phoneNumber;
-
-        if (!string.IsNullOrEmpty(openingHours))
-            restaurant.OpeningHours = openingHours;
-
-        await _dbContext.SaveChangesAsync();
-        return true;
+        return await _context.MenuItems
+            .Where(mi => mi.MenuItemId == menuItemId)
+            .Select(mi => mi.RestaurantId)
+            .FirstOrDefaultAsync();
     }
 
-    public async Task<List<Restaurant>> GetAllRestaurantsAsync()
+    public async Task<int?> GetRestaurantIdByReservationIdAsync(int reservationId)
     {
-        return await _dbContext.Restaurants
-            .Include(r => r.Tables)
-            .Include(r => r.Reservations)
-            .Include(r => r.Employees)
-            .Include(r => r.MenuItems)
-            .ToListAsync();
+        return await _context.Reservations
+            .Where(r => r.ReservationId == reservationId)
+            .Select(r => r.RestaurantId)
+            .FirstOrDefaultAsync();
     }
 
-    public async Task<Restaurant?> GetRestaurantByIdAsync(int restaurantId)
+    public async Task<int?> GetRestaurantIdByEmployeeIdAsync(int employeeId)
     {
-        if (restaurantId == 0)
-            return null;
-
-        return await _dbContext.Restaurants
-            .Include(r => r.Tables)
-            .Include(r => r.Reservations)
-            .Include(r => r.Employees)
-            .Include(r => r.MenuItems)
-            .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
+        return await _context.Employees
+            .Where(e => e.EmployeeId == employeeId)
+            .Select(e => e.RestaurantId)
+            .FirstOrDefaultAsync();
     }
 
-    public async Task<List<Table>> GetTablesByRestaurantIdAsync(int restaurantId)
-    {
-        return await _dbContext.Tables
-            .Where(t => t.RestaurantId == restaurantId)
-            .ToListAsync();
-    }
 
-    public async Task<List<MenuItem>> GetMenuItemsByRestaurantIdAsync(int restaurantId)
+    public async Task<bool> SaveChangesAsync()
     {
-        return await _dbContext.MenuItems
-            .Where(mi => mi.RestaurantId == restaurantId)
-            .ToListAsync();
-    }
-
-    public async Task<List<Employee>> GetEmployeesByRestaurantIdAsync(int restaurantId)
-    {
-        return await _dbContext.Employees
-            .Where(e => e.RestaurantId == restaurantId)
-            .ToListAsync();
-    }
-
-    public async Task<List<Reservation>> GetReservationsByRestaurantIdAsync(int restaurantId)
-    {
-        return await _dbContext.Reservations
-            .Where(r => r.RestaurantId == restaurantId)
-            .Include(r => r.Customer)
-            .Include(r => r.Table)
-            .Include(r => r.Orders)
-            .ToListAsync();
-    }
-
-    public async Task<decimal> GetTotalRevenueAsync(int restaurantId)
-    {
-        return await _dbContext.Restaurants
-            .Where(r => r.RestaurantId == restaurantId)
-            .Select(r => _dbContext.GetTotalRevenue(r.RestaurantId))
-            .SingleAsync();
-    }
-
-    public async Task<List<Customer>> FindCustomersByPartySizeAsync(int partySize)
-    {
-        return await _dbContext.Customers
-            .FromSqlInterpolated($"EXEC FindCustomersByPartySize @PartySize = {partySize}")
-            .ToListAsync();
+        return (await _context.SaveChangesAsync() >= 0);
     }
 }

@@ -1,88 +1,58 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RestaurantReservation.Db.Models;
+using RestaurantReservation.Db.Entities;
+using RestaurantReservation.Db.Interfaces;
 
 namespace RestaurantReservation.Db.Repositories;
-public class MenuItemRepository
+
+public class MenuItemRepository : IMenuItemRepository
 {
     private readonly RestaurantReservationDbContext _dbContext;
 
-    public MenuItemRepository(RestaurantReservationDbContext dbContext)
+    public MenuItemRepository(RestaurantReservationDbContext context)
     {
-        _dbContext = dbContext;
+        _dbContext = context;
     }
 
-    public async Task<MenuItem?> AddMenuItemAsync(MenuItem menuItem)
+    public async Task<bool> MenuItemExistsAsync(int id)
     {
-        if (menuItem == null)
-            return null;
+        return await _dbContext.MenuItems.AnyAsync(m => m.ItemId == id);
+    }
 
-        await _dbContext.MenuItems.AddAsync(menuItem);
-        await _dbContext.SaveChangesAsync();
+    public async Task<IEnumerable<MenuItem>> GetMenuItemsInRestaurantAsync(int restaurantId)
+    {
+        return await _dbContext.MenuItems.Where(m => m.RestaurantId == restaurantId).ToListAsync();
+    }
+
+    public async Task<MenuItem?> GetMenuItemAsync(int restaurantId, int menuItemId)
+    {
+        return await _dbContext.MenuItems
+            .FirstOrDefaultAsync(m => m.RestaurantId == restaurantId
+                                   && m.ItemId == menuItemId);
+    }
+
+    public async Task<IEnumerable<MenuItem>> GetOrderedMenuItemsByReservationIdAsync(int reservationId)
+    {
+        return await _dbContext.OrderItems
+            .Where(oi => oi.Order.ReservationId == reservationId)
+            .Select(oi => oi.MenuItem)
+            .ToListAsync();
+    }
+
+    public MenuItem CreateMenuItem(int restaurantId, MenuItem menuItem)
+    {
+        _dbContext.MenuItems.Add(menuItem);
+        menuItem.RestaurantId = restaurantId;
+
         return menuItem;
     }
 
-    public async Task<bool> RemoveMenuItemAsync(int menuItemId)
+    public void DeleteMenuItem(MenuItem menuItem)
     {
-        if (menuItemId == 0)
-            return false;
-
-        var menuItem = await GetMenuItemByIdAsync(menuItemId);
-        if (menuItem == null)
-            return false;
-
         _dbContext.MenuItems.Remove(menuItem);
-        await _dbContext.SaveChangesAsync();
-        return true;
     }
 
-    public async Task<bool> UpdateMenuItemAsync(int menuItemId, string? name = null, string? description = null, decimal? price = null)
+    public async Task<bool> SaveChangesAsync()
     {
-        if (menuItemId == 0)
-            return false;
-
-        var menuItem = await GetMenuItemByIdAsync(menuItemId);
-        if (menuItem == null)
-            return false;
-
-        if (!string.IsNullOrEmpty(name))
-            menuItem.Name = name;
-
-        if (!string.IsNullOrEmpty(description))
-            menuItem.Description = description;
-
-        if (price.HasValue)
-            menuItem.Price = price.Value;
-
-        await _dbContext.SaveChangesAsync();
-        return true;
+        return (await _dbContext.SaveChangesAsync() >= 0);
     }
-
-    public async Task<List<MenuItem>> GetAllMenuItemsAsync()
-    {
-        return await _dbContext.MenuItems
-            .Include(m => m.Restaurant)
-            .Include(m => m.OrderItems)
-            .ToListAsync();
-    }
-
-    public async Task<MenuItem?> GetMenuItemByIdAsync(int menuItemId)
-    {
-        if (menuItemId == 0)
-            return null;
-
-        return await _dbContext.MenuItems
-            .Include(m => m.Restaurant)
-            .Include(m => m.OrderItems)
-            .FirstOrDefaultAsync(m => m.ItemId == menuItemId);
-    }
-
-    public async Task<List<MenuItem>> GetMenuItemsByRestaurantAsync(int restaurantId)
-    {
-        return await _dbContext.MenuItems
-            .Where(m => m.RestaurantId == restaurantId)
-            .Include(m => m.Restaurant)
-            .Include(m => m.OrderItems)
-            .ToListAsync();
-    }
-
 }

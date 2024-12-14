@@ -1,137 +1,71 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RestaurantReservation.Db.DTOs;
-using RestaurantReservation.Db.Models;
+using RestaurantReservation.Db.Entities;
+using RestaurantReservation.Db.Interfaces;
 
 namespace RestaurantReservation.Db.Repositories;
-public class OrderRepository
+
+public class OrderRepository : IOrderRepository
 {
     private readonly RestaurantReservationDbContext _dbContext;
 
-    public OrderRepository(RestaurantReservationDbContext dbContext)
+    public OrderRepository(RestaurantReservationDbContext context)
     {
-        _dbContext = dbContext;
+        _dbContext = context;
     }
 
-    public async Task<Order?> AddOrderAsync(Order order)
+    public async Task<bool> OrderExistsAsync(int reservationId, int orderId)
     {
-        if (order == null)
-            return null;
-
-        await _dbContext.Orders.AddAsync(order);
-        await _dbContext.SaveChangesAsync();
-        return order;
+        return await _dbContext.Orders.AnyAsync(c => c.ReservationId == reservationId && c.OrderId == orderId);
     }
 
-    public async Task<bool> RemoveOrderAsync(int orderId)
+    public async Task<IEnumerable<Order>> GetOrdersForReservationAsync(int reservationId)
     {
-        if (orderId == 0)
-            return false;
+        return await _dbContext.Orders
+            .Include(o => o.OrderItems)
+            .ThenInclude(o => o.MenuItem)
+            .Where(o => o.ReservationId == reservationId)
+            .ToListAsync();
 
-        var order = await GetOrderByIdAsync(orderId);
-        if (order == null)
-            return false;
+    }
 
+    public async Task<Order?> GetOrderAsync(int reservationId, int orderId)
+    {
+        return await _dbContext.Orders
+            .Include(o => o.OrderItems)
+            .FirstOrDefaultAsync(o => o.ReservationId == reservationId && o.OrderId == orderId);
+    }
+
+    public void CreateOrder(int reservationId, Order order)
+    {
+        order.ReservationId = reservationId;
+        _dbContext.Orders.Add(order);
+    }
+
+    public void DeleteOrder(Order order)
+    {
         _dbContext.Orders.Remove(order);
-        await _dbContext.SaveChangesAsync();
-        return true;
     }
 
-    public async Task<bool> UpdateOrderAsync(int orderId, DateTime? orderDate = null, decimal? totalAmount = null)
+    public async Task<bool> SaveChangesAsync()
     {
-        if (orderId == 0)
-            return false;
-
-        var order = await GetOrderByIdAsync(orderId);
-        if (order == null)
-            return false;
-
-        if (orderDate.HasValue)
-            order.OrderDate = orderDate.Value;
-
-        if (totalAmount.HasValue)
-            order.TotalAmount = totalAmount.Value;
-
-        await _dbContext.SaveChangesAsync();
-        return true;
+        return (await _dbContext.SaveChangesAsync() >= 0);
     }
 
-    public async Task<List<Order>> GetAllOrdersAsync()
+    public async Task<decimal> CalculateTotalAmount(int orderId)
     {
-        return await _dbContext.Orders
-            .Include(o => o.Employee)
-            .Include(o => o.Reservation)
-            .Include(o => o.OrderItems)
-            .ToListAsync();
-    }
-
-    public async Task<Order?> GetOrderByIdAsync(int orderId)
-    {
-        if (orderId == 0)
-            return null;
-
-        return await _dbContext.Orders
-            .Include(o => o.Employee)
-            .Include(o => o.Reservation)
-            .Include(o => o.OrderItems)
-            .FirstOrDefaultAsync(o => o.OrderId == orderId);
-    }
-
-    public async Task<List<Order>> GetOrdersByEmployeeAsync(int employeeId)
-    {
-        return await _dbContext.Orders
-            .Where(o => o.EmployeeId == employeeId)
-            .Include(o => o.Employee)
-            .Include(o => o.Reservation)
-            .Include(o => o.OrderItems)
-            .ToListAsync();
-    }
-
-    public async Task<List<Order>> GetOrdersByReservationAsync(int reservationId)
-    {
-        return await _dbContext.Orders
-            .Where(o => o.ReservationId == reservationId)
-            .Include(o => o.Employee)
-            .Include(o => o.Reservation)
-            .Include(o => o.OrderItems)
-            .ToListAsync();
-    }
-
-    public async Task<List<OrderWithMenuItemsDto>> ListOrdersAndMenuItems(int reservationId)
-    {
-        return await _dbContext.Orders
-            .Where(o => o.ReservationId == reservationId)
+        var order = await _dbContext.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.MenuItem)
-            .Select(o => new OrderWithMenuItemsDto
-            {
-                OrderId = o.OrderId,
-                OrderDate = o.OrderDate,
-                TotalAmount = o.TotalAmount,
-                MenuItems = o.OrderItems.Select(oi => new MenuItemDto
-                {
-                    MenuItemId = oi.MenuItem.ItemId,
-                    Name = oi.MenuItem.Name,
-                    Description = oi.MenuItem.Description,
-                    Price = oi.MenuItem.Price,
-                    Quantity = oi.Quantity
-                }).ToList()
-            })
-            .ToListAsync();
-    }
+            .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
-    public async Task<List<MenuItemDto>> ListOrderedMenuItems(int reservationId)
-    {
-        return await _dbContext.OrderItems
-            .Where(oi => oi.Order.ReservationId == reservationId)
-            .Include(oi => oi.MenuItem)
-            .Select(oi => new MenuItemDto
-            {
-                MenuItemId = oi.MenuItem.ItemId,
-                Name = oi.MenuItem.Name,
-                Description = oi.MenuItem.Description,
-                Price = oi.MenuItem.Price,
-                Quantity = oi.Quantity
-            })
-            .ToListAsync();
+        if (order == null)
+        {
+            return 0;
+        }
+
+        decimal totalAmount = order.OrderItems?.Sum(oi => oi.Quantity * oi.MenuItem.Price) ?? 0;
+        order.TotalAmount = totalAmount;
+
+        return totalAmount;
     }
 }

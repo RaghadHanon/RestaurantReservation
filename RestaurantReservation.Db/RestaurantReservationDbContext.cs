@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RestaurantReservation.Db.Models;
+using Microsoft.Extensions.Configuration;
+using RestaurantReservation.Db.Entities;
 
 namespace RestaurantReservation.Db;
 public class RestaurantReservationDbContext : DbContext
@@ -15,9 +16,9 @@ public class RestaurantReservationDbContext : DbContext
     public DbSet<ReservationWithCustomerAndRestaurant> ReservationWithCustomerAndRestaurant { get; set; }
     public DbSet<EmployeeWithRestaurant> EmployeeWithRestaurant { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public RestaurantReservationDbContext(DbContextOptions<RestaurantReservationDbContext> options)
+            : base(options)
     {
-        optionsBuilder.UseSqlServer(Configuration.GetConnectionString());
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

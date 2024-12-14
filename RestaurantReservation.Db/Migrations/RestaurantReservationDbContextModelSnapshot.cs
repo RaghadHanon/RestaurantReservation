@@ -17,12 +17,155 @@ namespace RestaurantReservation.Db.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("RestaurantReservation.Db.DTOs.EmployeeWithRestaurantDto", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Customer", b =>
+                {
+                    b.Property<int>("CustomerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerId"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CustomerId");
+
+                    b.ToTable("Customers");
+
+                    b.HasData(
+                        new
+                        {
+                            CustomerId = 1,
+                            Email = "john.doe@example.com",
+                            FirstName = "John",
+                            LastName = "Doe",
+                            PhoneNumber = "1234567890"
+                        },
+                        new
+                        {
+                            CustomerId = 2,
+                            Email = "jane.smith@example.com",
+                            FirstName = "Jane",
+                            LastName = "Smith",
+                            PhoneNumber = "0987654321"
+                        },
+                        new
+                        {
+                            CustomerId = 3,
+                            Email = "emily.clark@example.com",
+                            FirstName = "Emily",
+                            LastName = "Clark",
+                            PhoneNumber = "5555555555"
+                        },
+                        new
+                        {
+                            CustomerId = 4,
+                            Email = "michael.johnson@example.com",
+                            FirstName = "Michael",
+                            LastName = "Johnson",
+                            PhoneNumber = "4444444444"
+                        },
+                        new
+                        {
+                            CustomerId = 5,
+                            Email = "sarah.brown@example.com",
+                            FirstName = "Sarah",
+                            LastName = "Brown",
+                            PhoneNumber = "3333333333"
+                        });
+                });
+
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Employee", b =>
+                {
+                    b.Property<int>("EmployeeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeId"));
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Position")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RestaurantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("EmployeeId");
+
+                    b.HasIndex("RestaurantId");
+
+                    b.ToTable("Employees");
+
+                    b.HasData(
+                        new
+                        {
+                            EmployeeId = 1,
+                            FirstName = "Alice",
+                            LastName = "Williams",
+                            Position = "Manager",
+                            RestaurantId = 1
+                        },
+                        new
+                        {
+                            EmployeeId = 2,
+                            FirstName = "Bob",
+                            LastName = "Anderson",
+                            Position = "Chef",
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            EmployeeId = 3,
+                            FirstName = "Carol",
+                            LastName = "Martinez",
+                            Position = "Waiter",
+                            RestaurantId = 3
+                        },
+                        new
+                        {
+                            EmployeeId = 4,
+                            FirstName = "David",
+                            LastName = "Wilson",
+                            Position = "Host",
+                            RestaurantId = 4
+                        },
+                        new
+                        {
+                            EmployeeId = 5,
+                            FirstName = "Eve",
+                            LastName = "Taylor",
+                            Position = "Cleaner",
+                            RestaurantId = 5
+                        });
+                });
+
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.EmployeeWithRestaurant", b =>
                 {
                     b.Property<string>("EmployeeName")
                         .IsRequired()
@@ -58,7 +201,293 @@ namespace RestaurantReservation.Db.Migrations
                     b.ToView("EmployeeWithRestaurant", (string)null);
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.DTOs.ReservationWithCustomerAndRestaurantDto", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.MenuItem", b =>
+                {
+                    b.Property<int>("ItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ItemId"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RestaurantId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ItemId");
+
+                    b.HasIndex("RestaurantId");
+
+                    b.ToTable("MenuItems");
+
+                    b.HasData(
+                        new
+                        {
+                            ItemId = 1,
+                            Description = "A juicy beef patty topped with cheddar cheese, lettuce, tomato, and pickles.",
+                            Name = "Classic Cheeseburger",
+                            Price = 8.99m,
+                            RestaurantId = 1
+                        },
+                        new
+                        {
+                            ItemId = 2,
+                            Description = "Romaine lettuce, croutons, parmesan cheese, and Caesar dressing.",
+                            Name = "Caesar Salad",
+                            Price = 6.50m,
+                            RestaurantId = 1
+                        },
+                        new
+                        {
+                            ItemId = 3,
+                            Description = "Traditional pizza topped with fresh mozzarella, basil, and tomato sauce.",
+                            Name = "Margherita Pizza",
+                            Price = 11.99m,
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            ItemId = 4,
+                            Description = "Classic Italian pasta with pancetta, egg, and parmesan cheese.",
+                            Name = "Spaghetti Carbonara",
+                            Price = 13.50m,
+                            RestaurantId = 2
+                        },
+                        new
+                        {
+                            ItemId = 5,
+                            Description = "Salmon fillet grilled to perfection, served with steamed vegetables.",
+                            Name = "Grilled Salmon",
+                            Price = 16.99m,
+                            RestaurantId = 3
+                        });
+                });
+
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Order", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ReservationId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("OrderId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("ReservationId");
+
+                    b.ToTable("Orders");
+
+                    b.HasData(
+                        new
+                        {
+                            OrderId = 1,
+                            EmployeeId = 1,
+                            OrderDate = new DateTime(2024, 12, 12, 11, 44, 48, 618, DateTimeKind.Utc).AddTicks(7985),
+                            ReservationId = 1,
+                            TotalAmount = 25.99m
+                        },
+                        new
+                        {
+                            OrderId = 2,
+                            EmployeeId = 2,
+                            OrderDate = new DateTime(2024, 12, 12, 6, 44, 48, 618, DateTimeKind.Utc).AddTicks(8260),
+                            ReservationId = 2,
+                            TotalAmount = 42.75m
+                        },
+                        new
+                        {
+                            OrderId = 3,
+                            EmployeeId = 3,
+                            OrderDate = new DateTime(2024, 12, 12, 8, 44, 48, 618, DateTimeKind.Utc).AddTicks(8262),
+                            ReservationId = 3,
+                            TotalAmount = 18.50m
+                        },
+                        new
+                        {
+                            OrderId = 4,
+                            EmployeeId = 4,
+                            OrderDate = new DateTime(2024, 12, 12, 13, 44, 48, 618, DateTimeKind.Utc).AddTicks(8263),
+                            ReservationId = 4,
+                            TotalAmount = 30.00m
+                        },
+                        new
+                        {
+                            OrderId = 5,
+                            EmployeeId = 5,
+                            OrderDate = new DateTime(2024, 12, 12, 10, 44, 48, 618, DateTimeKind.Utc).AddTicks(8264),
+                            ReservationId = 5,
+                            TotalAmount = 15.00m
+                        });
+                });
+
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.OrderItem", b =>
+                {
+                    b.Property<int>("OrderItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderItemId"));
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderItemId");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderItems");
+
+                    b.HasData(
+                        new
+                        {
+                            OrderItemId = 1,
+                            ItemId = 1,
+                            OrderId = 1,
+                            Quantity = 2
+                        },
+                        new
+                        {
+                            OrderItemId = 2,
+                            ItemId = 2,
+                            OrderId = 1,
+                            Quantity = 1
+                        },
+                        new
+                        {
+                            OrderItemId = 3,
+                            ItemId = 3,
+                            OrderId = 2,
+                            Quantity = 1
+                        },
+                        new
+                        {
+                            OrderItemId = 4,
+                            ItemId = 4,
+                            OrderId = 3,
+                            Quantity = 2
+                        },
+                        new
+                        {
+                            OrderItemId = 5,
+                            ItemId = 5,
+                            OrderId = 4,
+                            Quantity = 1
+                        });
+                });
+
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Reservation", b =>
+                {
+                    b.Property<int>("ReservationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReservationId"));
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartySize")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ReservationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RestaurantId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TableId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ReservationId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("RestaurantId");
+
+                    b.HasIndex("TableId");
+
+                    b.ToTable("Reservations");
+
+                    b.HasData(
+                        new
+                        {
+                            ReservationId = 1,
+                            CustomerId = 1,
+                            PartySize = 5,
+                            ReservationDate = new DateTime(2024, 12, 13, 16, 44, 48, 618, DateTimeKind.Utc).AddTicks(4848),
+                            RestaurantId = 1,
+                            TableId = 1
+                        },
+                        new
+                        {
+                            ReservationId = 2,
+                            CustomerId = 2,
+                            PartySize = 10,
+                            ReservationDate = new DateTime(2024, 12, 14, 16, 44, 48, 618, DateTimeKind.Utc).AddTicks(5158),
+                            RestaurantId = 2,
+                            TableId = 3
+                        },
+                        new
+                        {
+                            ReservationId = 3,
+                            CustomerId = 3,
+                            PartySize = 4,
+                            ReservationDate = new DateTime(2024, 12, 15, 16, 44, 48, 618, DateTimeKind.Utc).AddTicks(5162),
+                            RestaurantId = 3,
+                            TableId = 4
+                        },
+                        new
+                        {
+                            ReservationId = 4,
+                            CustomerId = 4,
+                            PartySize = 2,
+                            ReservationDate = new DateTime(2024, 12, 16, 16, 44, 48, 618, DateTimeKind.Utc).AddTicks(5163),
+                            RestaurantId = 4,
+                            TableId = 5
+                        },
+                        new
+                        {
+                            ReservationId = 5,
+                            CustomerId = 5,
+                            PartySize = 15,
+                            ReservationDate = new DateTime(2024, 12, 17, 16, 44, 48, 618, DateTimeKind.Utc).AddTicks(5164),
+                            RestaurantId = 5,
+                            TableId = 1
+                        });
+                });
+
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.ReservationWithCustomerAndRestaurant", b =>
                 {
                     b.Property<string>("CustomerEmail")
                         .IsRequired()
@@ -107,444 +536,7 @@ namespace RestaurantReservation.Db.Migrations
                     b.ToView("ReservationWithCustomerAndRestaurant", (string)null);
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Customer", b =>
-                {
-                    b.Property<int>("CustomerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerId"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("CustomerId");
-
-                    b.ToTable("Customers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            CustomerId = 1,
-                            Email = "john.doe@example.com",
-                            FirstName = "John",
-                            LastName = "Doe",
-                            PhoneNumber = "1234567890"
-                        },
-                        new
-                        {
-                            CustomerId = 2,
-                            Email = "jane.smith@example.com",
-                            FirstName = "Jane",
-                            LastName = "Smith",
-                            PhoneNumber = "0987654321"
-                        },
-                        new
-                        {
-                            CustomerId = 3,
-                            Email = "emily.clark@example.com",
-                            FirstName = "Emily",
-                            LastName = "Clark",
-                            PhoneNumber = "5555555555"
-                        },
-                        new
-                        {
-                            CustomerId = 4,
-                            Email = "michael.johnson@example.com",
-                            FirstName = "Michael",
-                            LastName = "Johnson",
-                            PhoneNumber = "4444444444"
-                        },
-                        new
-                        {
-                            CustomerId = 5,
-                            Email = "sarah.brown@example.com",
-                            FirstName = "Sarah",
-                            LastName = "Brown",
-                            PhoneNumber = "3333333333"
-                        });
-                });
-
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Employee", b =>
-                {
-                    b.Property<int>("EmployeeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeId"));
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Position")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("RestaurantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("EmployeeId");
-
-                    b.HasIndex("RestaurantId");
-
-                    b.ToTable("Employees", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            EmployeeId = 1,
-                            FirstName = "Alice",
-                            LastName = "Williams",
-                            Position = "Manager",
-                            RestaurantId = 1
-                        },
-                        new
-                        {
-                            EmployeeId = 2,
-                            FirstName = "Bob",
-                            LastName = "Anderson",
-                            Position = "Chef",
-                            RestaurantId = 2
-                        },
-                        new
-                        {
-                            EmployeeId = 3,
-                            FirstName = "Carol",
-                            LastName = "Martinez",
-                            Position = "Waiter",
-                            RestaurantId = 3
-                        },
-                        new
-                        {
-                            EmployeeId = 4,
-                            FirstName = "David",
-                            LastName = "Wilson",
-                            Position = "Host",
-                            RestaurantId = 4
-                        },
-                        new
-                        {
-                            EmployeeId = 5,
-                            FirstName = "Eve",
-                            LastName = "Taylor",
-                            Position = "Cleaner",
-                            RestaurantId = 5
-                        });
-                });
-
-            modelBuilder.Entity("RestaurantReservation.Db.Models.MenuItem", b =>
-                {
-                    b.Property<int>("ItemId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ItemId"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("RestaurantId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ItemId");
-
-                    b.HasIndex("RestaurantId");
-
-                    b.ToTable("MenuItems", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            ItemId = 1,
-                            Description = "A juicy beef patty topped with cheddar cheese, lettuce, tomato, and pickles.",
-                            Name = "Classic Cheeseburger",
-                            Price = 8.99m,
-                            RestaurantId = 1
-                        },
-                        new
-                        {
-                            ItemId = 2,
-                            Description = "Romaine lettuce, croutons, parmesan cheese, and Caesar dressing.",
-                            Name = "Caesar Salad",
-                            Price = 6.50m,
-                            RestaurantId = 1
-                        },
-                        new
-                        {
-                            ItemId = 3,
-                            Description = "Traditional pizza topped with fresh mozzarella, basil, and tomato sauce.",
-                            Name = "Margherita Pizza",
-                            Price = 11.99m,
-                            RestaurantId = 2
-                        },
-                        new
-                        {
-                            ItemId = 4,
-                            Description = "Classic Italian pasta with pancetta, egg, and parmesan cheese.",
-                            Name = "Spaghetti Carbonara",
-                            Price = 13.50m,
-                            RestaurantId = 2
-                        },
-                        new
-                        {
-                            ItemId = 5,
-                            Description = "Salmon fillet grilled to perfection, served with steamed vegetables.",
-                            Name = "Grilled Salmon",
-                            Price = 16.99m,
-                            RestaurantId = 3
-                        });
-                });
-
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Order", b =>
-                {
-                    b.Property<int>("OrderId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
-
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("OrderDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ReservationId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("OrderId");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.HasIndex("ReservationId");
-
-                    b.ToTable("Orders", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            OrderId = 1,
-                            EmployeeId = 1,
-                            OrderDate = new DateTime(2024, 11, 11, 14, 39, 40, 538, DateTimeKind.Utc).AddTicks(2956),
-                            ReservationId = 1,
-                            TotalAmount = 25.99m
-                        },
-                        new
-                        {
-                            OrderId = 2,
-                            EmployeeId = 2,
-                            OrderDate = new DateTime(2024, 11, 11, 9, 39, 40, 538, DateTimeKind.Utc).AddTicks(2959),
-                            ReservationId = 2,
-                            TotalAmount = 42.75m
-                        },
-                        new
-                        {
-                            OrderId = 3,
-                            EmployeeId = 3,
-                            OrderDate = new DateTime(2024, 11, 11, 11, 39, 40, 538, DateTimeKind.Utc).AddTicks(2960),
-                            ReservationId = 3,
-                            TotalAmount = 18.50m
-                        },
-                        new
-                        {
-                            OrderId = 4,
-                            EmployeeId = 4,
-                            OrderDate = new DateTime(2024, 11, 11, 16, 39, 40, 538, DateTimeKind.Utc).AddTicks(2961),
-                            ReservationId = 4,
-                            TotalAmount = 30.00m
-                        },
-                        new
-                        {
-                            OrderId = 5,
-                            EmployeeId = 5,
-                            OrderDate = new DateTime(2024, 11, 11, 13, 39, 40, 538, DateTimeKind.Utc).AddTicks(2962),
-                            ReservationId = 5,
-                            TotalAmount = 15.00m
-                        });
-                });
-
-            modelBuilder.Entity("RestaurantReservation.Db.Models.OrderItem", b =>
-                {
-                    b.Property<int>("OrderItemId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderItemId"));
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("OrderItemId");
-
-                    b.HasIndex("ItemId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderItems", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            OrderItemId = 1,
-                            ItemId = 1,
-                            OrderId = 1,
-                            Quantity = 2
-                        },
-                        new
-                        {
-                            OrderItemId = 2,
-                            ItemId = 2,
-                            OrderId = 1,
-                            Quantity = 1
-                        },
-                        new
-                        {
-                            OrderItemId = 3,
-                            ItemId = 3,
-                            OrderId = 2,
-                            Quantity = 1
-                        },
-                        new
-                        {
-                            OrderItemId = 4,
-                            ItemId = 4,
-                            OrderId = 3,
-                            Quantity = 2
-                        },
-                        new
-                        {
-                            OrderItemId = 5,
-                            ItemId = 5,
-                            OrderId = 4,
-                            Quantity = 1
-                        });
-                });
-
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Reservation", b =>
-                {
-                    b.Property<int>("ReservationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReservationId"));
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PartySize")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ReservationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("RestaurantId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TableId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ReservationId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("RestaurantId");
-
-                    b.HasIndex("TableId");
-
-                    b.ToTable("Reservations", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            ReservationId = 1,
-                            CustomerId = 1,
-                            PartySize = 5,
-                            ReservationDate = new DateTime(2024, 11, 12, 19, 39, 40, 538, DateTimeKind.Utc).AddTicks(2924),
-                            RestaurantId = 1,
-                            TableId = 1
-                        },
-                        new
-                        {
-                            ReservationId = 2,
-                            CustomerId = 2,
-                            PartySize = 10,
-                            ReservationDate = new DateTime(2024, 11, 13, 19, 39, 40, 538, DateTimeKind.Utc).AddTicks(2932),
-                            RestaurantId = 2,
-                            TableId = 3
-                        },
-                        new
-                        {
-                            ReservationId = 3,
-                            CustomerId = 3,
-                            PartySize = 4,
-                            ReservationDate = new DateTime(2024, 11, 14, 19, 39, 40, 538, DateTimeKind.Utc).AddTicks(2933),
-                            RestaurantId = 3,
-                            TableId = 4
-                        },
-                        new
-                        {
-                            ReservationId = 4,
-                            CustomerId = 4,
-                            PartySize = 2,
-                            ReservationDate = new DateTime(2024, 11, 15, 19, 39, 40, 538, DateTimeKind.Utc).AddTicks(2934),
-                            RestaurantId = 4,
-                            TableId = 5
-                        },
-                        new
-                        {
-                            ReservationId = 5,
-                            CustomerId = 5,
-                            PartySize = 15,
-                            ReservationDate = new DateTime(2024, 11, 16, 19, 39, 40, 538, DateTimeKind.Utc).AddTicks(2936),
-                            RestaurantId = 5,
-                            TableId = 1
-                        });
-                });
-
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Restaurant", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Restaurant", b =>
                 {
                     b.Property<int>("RestaurantId")
                         .ValueGeneratedOnAdd()
@@ -573,7 +565,7 @@ namespace RestaurantReservation.Db.Migrations
 
                     b.HasKey("RestaurantId");
 
-                    b.ToTable("Restaurants", (string)null);
+                    b.ToTable("Restaurants");
 
                     b.HasData(
                         new
@@ -618,7 +610,7 @@ namespace RestaurantReservation.Db.Migrations
                         });
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Table", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Table", b =>
                 {
                     b.Property<int>("TableId")
                         .ValueGeneratedOnAdd()
@@ -636,7 +628,7 @@ namespace RestaurantReservation.Db.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("Tables", (string)null);
+                    b.ToTable("Tables");
 
                     b.HasData(
                         new
@@ -671,9 +663,9 @@ namespace RestaurantReservation.Db.Migrations
                         });
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Employee", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Employee", b =>
                 {
-                    b.HasOne("RestaurantReservation.Db.Models.Restaurant", "Restaurant")
+                    b.HasOne("RestaurantReservation.Db.Entities.Restaurant", "Restaurant")
                         .WithMany("Employees")
                         .HasForeignKey("RestaurantId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -682,9 +674,9 @@ namespace RestaurantReservation.Db.Migrations
                     b.Navigation("Restaurant");
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.MenuItem", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.MenuItem", b =>
                 {
-                    b.HasOne("RestaurantReservation.Db.Models.Restaurant", "Restaurant")
+                    b.HasOne("RestaurantReservation.Db.Entities.Restaurant", "Restaurant")
                         .WithMany("MenuItems")
                         .HasForeignKey("RestaurantId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -693,18 +685,18 @@ namespace RestaurantReservation.Db.Migrations
                     b.Navigation("Restaurant");
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Order", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Order", b =>
                 {
-                    b.HasOne("RestaurantReservation.Db.Models.Employee", "Employee")
+                    b.HasOne("RestaurantReservation.Db.Entities.Employee", "Employee")
                         .WithMany("Orders")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("RestaurantReservation.Db.Models.Reservation", "Reservation")
+                    b.HasOne("RestaurantReservation.Db.Entities.Reservation", "Reservation")
                         .WithMany("Orders")
                         .HasForeignKey("ReservationId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Employee");
@@ -712,15 +704,15 @@ namespace RestaurantReservation.Db.Migrations
                     b.Navigation("Reservation");
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.OrderItem", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.OrderItem", b =>
                 {
-                    b.HasOne("RestaurantReservation.Db.Models.MenuItem", "MenuItem")
+                    b.HasOne("RestaurantReservation.Db.Entities.MenuItem", "MenuItem")
                         .WithMany("OrderItems")
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("RestaurantReservation.Db.Models.Order", "Order")
+                    b.HasOne("RestaurantReservation.Db.Entities.Order", "Order")
                         .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -731,21 +723,21 @@ namespace RestaurantReservation.Db.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Reservation", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Reservation", b =>
                 {
-                    b.HasOne("RestaurantReservation.Db.Models.Customer", "Customer")
+                    b.HasOne("RestaurantReservation.Db.Entities.Customer", "Customer")
                         .WithMany("Reservations")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("RestaurantReservation.Db.Models.Restaurant", "Restaurant")
+                    b.HasOne("RestaurantReservation.Db.Entities.Restaurant", "Restaurant")
                         .WithMany("Reservations")
                         .HasForeignKey("RestaurantId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("RestaurantReservation.Db.Models.Table", "Table")
+                    b.HasOne("RestaurantReservation.Db.Entities.Table", "Table")
                         .WithMany("Reservations")
                         .HasForeignKey("TableId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -758,9 +750,9 @@ namespace RestaurantReservation.Db.Migrations
                     b.Navigation("Table");
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Table", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Table", b =>
                 {
-                    b.HasOne("RestaurantReservation.Db.Models.Restaurant", "Restaurant")
+                    b.HasOne("RestaurantReservation.Db.Entities.Restaurant", "Restaurant")
                         .WithMany("Tables")
                         .HasForeignKey("RestaurantId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -769,32 +761,32 @@ namespace RestaurantReservation.Db.Migrations
                     b.Navigation("Restaurant");
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Customer", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Customer", b =>
                 {
                     b.Navigation("Reservations");
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Employee", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Employee", b =>
                 {
                     b.Navigation("Orders");
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.MenuItem", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.MenuItem", b =>
                 {
                     b.Navigation("OrderItems");
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Order", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Order", b =>
                 {
                     b.Navigation("OrderItems");
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Reservation", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Reservation", b =>
                 {
                     b.Navigation("Orders");
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Restaurant", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Restaurant", b =>
                 {
                     b.Navigation("Employees");
 
@@ -805,7 +797,7 @@ namespace RestaurantReservation.Db.Migrations
                     b.Navigation("Tables");
                 });
 
-            modelBuilder.Entity("RestaurantReservation.Db.Models.Table", b =>
+            modelBuilder.Entity("RestaurantReservation.Db.Entities.Table", b =>
                 {
                     b.Navigation("Reservations");
                 });

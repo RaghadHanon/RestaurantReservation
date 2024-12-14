@@ -1,79 +1,61 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using RestaurantReservation.Db.Models;
+using RestaurantReservation.Db.Entities;
+using RestaurantReservation.Db.Interfaces;
 
 namespace RestaurantReservation.Db.Repositories;
-public class CustomerRepository
+
+public class CustomerRepository : ICustomerRepository
 {
-    private RestaurantReservationDbContext _dbContext;
-    public CustomerRepository(RestaurantReservationDbContext dbContext)
+    private readonly RestaurantReservationDbContext _dbContext;
+
+    public CustomerRepository(RestaurantReservationDbContext context)
     {
-        _dbContext = dbContext;
+        _dbContext = context;
     }
 
-    public async Task<Customer?> AddCustomerAsync(Customer customer)
+    public async Task<bool> CustomerExistsAsync(int id)
     {
-        if (customer == null)
-            return null;
+        return await _dbContext.Customers.AnyAsync(c => c.CustomerId == id);
+    }
+    public async Task<IEnumerable<Customer>> GetAllCustomersAsync()
+    {
+        return await _dbContext.Customers.ToListAsync();
+    }
 
-        await _dbContext.Customers.AddAsync(customer);
-        await _dbContext.SaveChangesAsync();
+    public async Task<Customer?> GetCustomerAsync(int id, bool includeReservations = false)
+    {
+        if (includeReservations)
+        {
+            return await _dbContext.Customers.Include(c => c.Reservations).FirstOrDefaultAsync(c => c.CustomerId == id);
+        }
+        return await _dbContext.Customers.FirstOrDefaultAsync(c => c.CustomerId == id);
+    }
+
+    public Customer CreateCustomer(Customer customer)
+    {
+        _dbContext.Customers.Add(customer);
         return customer;
     }
 
-    public async Task<bool> RemoveCustomerAsync(int customerId)
+    public Customer UpdateCustomer(Customer customer)
     {
-        if (customerId == 0)
-            return false;
+        _dbContext.Customers.Update(customer);
+        return customer;
+    }
 
-        var customer = await GetCustomerByIdAsync(customerId);
-        if (customer == null)
-            return false;
-
+    public void DeleteCustomer(Customer customer)
+    {
         _dbContext.Customers.Remove(customer);
-        await _dbContext.SaveChangesAsync();
-        return true;
     }
 
-    public async Task<bool> UpdateCustomerAsync(int customerId, string? firstName = null, string? lastName = null, string? email = null, string? phoneNumber = null)
+    public List<Customer> FindCustomersWithPartySizeGreaterThan(int partySize)
     {
-        if (customerId == 0)
-            return false;
-
-        var customer = await GetCustomerByIdAsync(customerId);
-        if (customer == null)
-            return false;
-
-        if (!firstName.IsNullOrEmpty())
-            customer.FirstName = firstName;
-
-        if (!lastName.IsNullOrEmpty())
-            customer.LastName = lastName;
-
-        if (!email.IsNullOrEmpty())
-            customer.Email = email;
-
-        if (!phoneNumber.IsNullOrEmpty())
-            customer.PhoneNumber = phoneNumber;
-
-        await _dbContext.SaveChangesAsync();
-        return true;
+        return _dbContext.Customers
+            .FromSqlRaw("EXEC FindCustomersByPartySize @PartySize", partySize).ToList();
     }
 
-    public async Task<List<Customer>> GetAllCustomersAsync()
+    public async Task<bool> SaveChangesAsync()
     {
-        return await _dbContext.Customers
-                               .Include(c => c.Reservations)
-                               .ToListAsync();
-    }
-
-    public async Task<Customer?> GetCustomerByIdAsync(int customerId)
-    {
-        if (customerId == 0)
-            return null;
-
-        return await _dbContext.Customers
-                               .Include(c => c.Reservations)
-                               .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+        return (await _dbContext.SaveChangesAsync() >= 0);
     }
 }
