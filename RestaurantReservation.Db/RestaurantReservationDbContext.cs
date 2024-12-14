@@ -1,10 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using RestaurantReservation.Db.Entities;
 
 namespace RestaurantReservation.Db;
-public class RestaurantReservationDbContext : DbContext
+
+public class RestaurantReservationDbContext : IdentityDbContext<ApplicationUser>
 {
+    private readonly string _connectionString;
+
     public DbSet<Customer> Customers { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<Employee> Employees { get; set; }
@@ -16,13 +20,20 @@ public class RestaurantReservationDbContext : DbContext
     public DbSet<ReservationWithCustomerAndRestaurant> ReservationWithCustomerAndRestaurant { get; set; }
     public DbSet<EmployeeWithRestaurant> EmployeeWithRestaurant { get; set; }
 
-    public RestaurantReservationDbContext(DbContextOptions<RestaurantReservationDbContext> options)
-            : base(options)
+    public RestaurantReservationDbContext(string connectionString)
     {
+        _connectionString = connectionString;
     }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseSqlServer(_connectionString)
+            .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, LogLevel.Information)
+            .EnableSensitiveDataLogging();
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         MapDatabaseViews(modelBuilder);
         MapDatabaseFunctions(modelBuilder);
         MapRelationshipsAndForeignKeys(modelBuilder);
@@ -161,11 +172,11 @@ public class RestaurantReservationDbContext : DbContext
     private static void SeedMenuItem(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<MenuItem>().HasData(
-            new MenuItem { ItemId = 1, RestaurantId = 1, Name = "Classic Cheeseburger", Description = "A juicy beef patty topped with cheddar cheese, lettuce, tomato, and pickles.", Price = 8.99m },
-            new MenuItem { ItemId = 2, RestaurantId = 1, Name = "Caesar Salad", Description = "Romaine lettuce, croutons, parmesan cheese, and Caesar dressing.", Price = 6.50m },
-            new MenuItem { ItemId = 3, RestaurantId = 2, Name = "Margherita Pizza", Description = "Traditional pizza topped with fresh mozzarella, basil, and tomato sauce.", Price = 11.99m },
-            new MenuItem { ItemId = 4, RestaurantId = 2, Name = "Spaghetti Carbonara", Description = "Classic Italian pasta with pancetta, egg, and parmesan cheese.", Price = 13.50m },
-            new MenuItem { ItemId = 5, RestaurantId = 3, Name = "Grilled Salmon", Description = "Salmon fillet grilled to perfection, served with steamed vegetables.", Price = 16.99m }
+            new MenuItem { MenuItemId = 1, RestaurantId = 1, Name = "Classic Cheeseburger", Description = "A juicy beef patty topped with cheddar cheese, lettuce, tomato, and pickles.", Price = 8.99m },
+            new MenuItem { MenuItemId = 2, RestaurantId = 1, Name = "Caesar Salad", Description = "Romaine lettuce, croutons, parmesan cheese, and Caesar dressing.", Price = 6.50m },
+            new MenuItem { MenuItemId = 3, RestaurantId = 2, Name = "Margherita Pizza", Description = "Traditional pizza topped with fresh mozzarella, basil, and tomato sauce.", Price = 11.99m },
+            new MenuItem { MenuItemId = 4, RestaurantId = 2, Name = "Spaghetti Carbonara", Description = "Classic Italian pasta with pancetta, egg, and parmesan cheese.", Price = 13.50m },
+            new MenuItem { MenuItemId = 5, RestaurantId = 3, Name = "Grilled Salmon", Description = "Salmon fillet grilled to perfection, served with steamed vegetables.", Price = 16.99m }
         );
     }
 

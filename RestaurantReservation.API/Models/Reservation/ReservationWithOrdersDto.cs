@@ -1,4 +1,6 @@
-﻿namespace RestaurantReservation.API.Models.Reservation;
+﻿using RestaurantReservation.API.Models.Order;
+
+namespace RestaurantReservation.API.Models.Reservation;
 public class ReservationWithOrdersDto
 {
     public int ReservationId { get; set; }
@@ -7,5 +9,5 @@ public class ReservationWithOrdersDto
     public int TableId { get; set; }
     public DateTime ReservationDate { get; set; }
     public int PartySize { get; set; }
-    public List<Db.Entities.Order> Orders { get; set; }
+    public List<OrderDto> Orders { get; set; }
 }

@@ -29,11 +29,11 @@ public class CustomersController : ControllerBase
     /// <returns>A list of customer data transfer objects.</returns>
     /// <response code="200">Returns the list of customers.</response>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CustomerWithReservationsDto>))]
-    public async Task<ActionResult<IEnumerable<CustomerWithReservationsDto>>> GetCustomers()
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CustomerDto>))]
+    public async Task<ActionResult<IEnumerable<CustomerDto>>> GetCustomers()
     {
         var customers = await _customerRepository.GetAllCustomersAsync();
-        return Ok(_mapper.Map<IEnumerable<CustomerWithReservationsDto>>(customers));
+        return Ok(_mapper.Map<IEnumerable<CustomerDto>>(customers));
     }
 
     /// <summary>
@@ -72,7 +72,7 @@ public class CustomersController : ControllerBase
     public async Task<ActionResult<CustomerDto>> PostCustomer(CustomerCreationDto customer)
     {
         var customerEntity = _mapper.Map<Customer>(customer);
-        _customerRepository.CreateCustomer(customerEntity);
+        await _customerRepository.CreateCustomerAsync(customerEntity);
         await _customerRepository.SaveChangesAsync();
 
         return CreatedAtRoute("GetCustomer",

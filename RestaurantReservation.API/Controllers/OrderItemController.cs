@@ -146,7 +146,7 @@ public class OrderItemsController : ControllerBase
         }
 
         var orderItemEntity = _mapper.Map<OrderItem>(orderItemForCreation);
-        _orderItemRepository.AddOrderItemToOrder(orderId, orderItemEntity);
+        await _orderItemRepository.AddOrderItemToOrderAsync(orderId, orderItemEntity);
         await _orderItemRepository.SaveChangesAsync(orderId);
 
         return CreatedAtRoute("GetOrderItem",

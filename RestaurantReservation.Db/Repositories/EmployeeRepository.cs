@@ -20,24 +20,24 @@ public class EmployeeRepository : IEmployeeRepository
 
     public async Task<IEnumerable<Employee>> GetAllEmployeesAsync()
     {
-        return await _dbContext.Employees.ToListAsync();
+        return await _dbContext.Employees.Include(e => e.Restaurant).ToListAsync();
     }
 
     public async Task<Employee?> GetEmployeeAsync(int employeeId, bool includeOrders = false)
     {
+        var query = _dbContext.Employees.Include(e => e.Restaurant).AsQueryable();
         if (includeOrders)
         {
-            return await _dbContext.Employees
-                .Include(e => e.Orders)
-                .FirstOrDefaultAsync(e => e.EmployeeId == employeeId);
+            query = query.Include(e => e.Orders);
         }
-        return await _dbContext.Employees
-            .FirstOrDefaultAsync(e => e.EmployeeId == employeeId);
+
+        return await query.FirstOrDefaultAsync(e => e.EmployeeId == employeeId);
     }
 
     public async Task<IEnumerable<Employee>> GetManagers()
     {
         return await _dbContext.Employees
+            .Include(e => e.Restaurant)
             .Where(e => e.Position == "Manager")
             .ToListAsync();
     }
@@ -64,9 +64,9 @@ public class EmployeeRepository : IEmployeeRepository
         return averageOrderAmount;
     }
 
-    public Employee CreateEmployee(Employee employee)
+    public async Task<Employee> CreateEmployeeAsync(Employee employee)
     {
-        _dbContext.Employees.Add(employee);
+        await _dbContext.Employees.AddAsync(employee);
         return employee;
     }
 

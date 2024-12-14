@@ -11,5 +11,8 @@ public class RestaurantProfile : Profile
         CreateMap<Restaurant, RestaurantDto>();
         CreateMap<RestaurantCreationDto, Restaurant>();
         CreateMap<RestaurantUpdateDto, Restaurant>();
+        CreateMap<Restaurant, RestaurantUpdateDto>();
+        CreateMap<Restaurant, RestaurantWithEmployeesDto>();
+        CreateMap<Restaurant, RestaurantWithMenuItemsDto>();
     }
 }

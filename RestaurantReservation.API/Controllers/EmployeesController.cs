@@ -31,11 +31,11 @@ public class EmployeesController : ControllerBase
     /// <returns>The list of employees.</returns>
     /// <response code="200">Returns the list of employees.</response>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<EmployeeWithOrdersDto>))]
-    public async Task<ActionResult<IEnumerable<EmployeeWithOrdersDto>>> GetEmployees()
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<EmployeeDto>))]
+    public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetEmployees()
     {
         var employees = await _employeeRepository.GetAllEmployeesAsync();
-        return Ok(_mapper.Map<IEnumerable<EmployeeWithOrdersDto>>(employees));
+        return Ok(_mapper.Map<IEnumerable<EmployeeDto>>(employees));
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public class EmployeesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetEmployee(int employeeId, bool includeOrders = false)
     {
-        var employee = await _employeeRepository.GetEmployeeAsync(employeeId);
+        var employee = await _employeeRepository.GetEmployeeAsync(employeeId, includeOrders);
         if (employee == null)
         {
             return NotFound(ApiErrors.EmployeeNotFound);
@@ -108,7 +108,16 @@ public class EmployeesController : ControllerBase
     public async Task<IActionResult> PostEmployee(EmployeeCreationDto CraetedEmployee)
     {
         var employeeEntity = _mapper.Map<Employee>(CraetedEmployee);
-        _employeeRepository.CreateEmployee(employeeEntity);
+
+        var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(employeeEntity.RestaurantId);
+        if (!restaurantExists)
+        {
+            return NotFound(ApiErrors.RestaurantNotFound);
+        }
+
+        await _employeeRepository.CreateEmployeeAsync(employeeEntity);
+        var restaurant = await _restaurantRepository.GetRestaurantAsync(employeeEntity.RestaurantId);
+        employeeEntity.Restaurant = restaurant;
         await _employeeRepository.SaveChangesAsync();
 
         return CreatedAtRoute("GetEmployee",

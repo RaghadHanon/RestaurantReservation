@@ -4,7 +4,7 @@ namespace RestaurantReservation.Db.Interfaces
 {
     public interface ITableRepository
     {
-        Table CreateTable(int restaurantId, Table table);
+        Task<Table> CreateTableAsync(int restaurantId, Table table);
         void DeleteTable(Table table);
         Task<Table?> GetTableAsync(int restaurantId, int tableId);
         Task<IEnumerable<Table>> GetTablesInRestaurantAsync(int restaurantId);

@@ -3,7 +3,7 @@
 namespace RestaurantReservation.Db.Interfaces;
 public interface ICustomerRepository
 {
-    Customer CreateCustomer(Customer customer);
+    Task<Customer> CreateCustomerAsync(Customer customer);
     Task<bool> CustomerExistsAsync(int id);
     void DeleteCustomer(Customer customer);
     List<Customer> FindCustomersWithPartySizeGreaterThan(int partySize);

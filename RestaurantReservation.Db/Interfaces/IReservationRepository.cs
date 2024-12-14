@@ -3,7 +3,7 @@
 namespace RestaurantReservation.Db.Interfaces;
 public interface IReservationRepository
 {
-    Reservation CreateReservation(Reservation reservation);
+    Task<Reservation> CreateReservationAsync(Reservation reservation);
     void DeleteReservation(Reservation reservation);
     Task<IEnumerable<Reservation>> GetAllReservationsAsync();
     Task<Reservation?> GetReservationAsync(int reservationId, bool includeOrders = false);

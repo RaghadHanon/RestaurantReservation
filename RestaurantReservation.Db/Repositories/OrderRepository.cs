@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Entities;
 using RestaurantReservation.Db.Interfaces;
+using System.Threading.Tasks;
 
 namespace RestaurantReservation.Db.Repositories;
 
@@ -32,13 +33,14 @@ public class OrderRepository : IOrderRepository
     {
         return await _dbContext.Orders
             .Include(o => o.OrderItems)
+            .ThenInclude(o => o.MenuItem)
             .FirstOrDefaultAsync(o => o.ReservationId == reservationId && o.OrderId == orderId);
     }
 
-    public void CreateOrder(int reservationId, Order order)
+    public async Task CreateOrderAsync(int reservationId, Order order)
     {
         order.ReservationId = reservationId;
-        _dbContext.Orders.Add(order);
+        await _dbContext.Orders.AddAsync(order);
     }
 
     public void DeleteOrder(Order order)

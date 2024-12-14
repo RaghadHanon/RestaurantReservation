@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantReservation.API.ModelView.Table;
-using RestaurantReservation.Db.Interfaces;
 using RestaurantReservation.API.Utilities;
+using RestaurantReservation.Db.Entities;
+using RestaurantReservation.Db.Interfaces;
 
 namespace RestaurantReservation.Api.Controllers;
 
@@ -43,7 +44,7 @@ public class TablesController : ControllerBase
         var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
         if (!restaurantExists)
         {
-            return NotFound(ApiErrors.ResturantNotFound);
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
         var tables = await _tablesRepository.GetTablesInRestaurantAsync(restaurantId);
@@ -66,13 +67,13 @@ public class TablesController : ControllerBase
         var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
         if (!restaurantExists)
         {
-            return NotFound("Restaurant not found");
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
         var table = await _tablesRepository.GetTableAsync(restaurantId, tableId);
         if (table == null)
         {
-            return NotFound("Table not found");
+            return NotFound(ApiErrors.TableNotFound);
         }
 
         return Ok(_mapper.Map<TableDto>(table));
@@ -91,22 +92,23 @@ public class TablesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TableDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> PostTable(int restaurantId, TableForCreationOrUpdateDto tableForCreation)
+    public async Task<IActionResult> PostTable(int restaurantId, TableCreationDto tableForCreation)
     {
         var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
         if (!restaurantExists)
         {
-            return NotFound("Restaurant not found");
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
         var tableEntity = _mapper.Map<Table>(tableForCreation);
-        var createdTable = _tablesRepository.CreateTable(restaurantId, tableEntity);
-
+        var createdTable = await _tablesRepository.CreateTableAsync(restaurantId, tableEntity);
         await _tablesRepository.SaveChangesAsync();
 
         return CreatedAtRoute("GetTable",
-            new { restaurantId, tableId = createdTable.TableId },
-            _mapper.Map<TableDto>(createdTable));
+            new {
+                restaurantId,
+                tableId = createdTable.TableId
+            }, _mapper.Map<TableDto>(createdTable));
     }
 
     /// <summary>
@@ -123,65 +125,21 @@ public class TablesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> PutTable(int restaurantId, int tableId, TableForCreationOrUpdateDto tableForUpdate)
+    public async Task<ActionResult> PutTable(int restaurantId, int tableId, TableUpdateDto tableForUpdate)
     {
         var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
         if (!restaurantExists)
         {
-            return NotFound("Restaurant not found");
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
         var tableEntity = await _tablesRepository.GetTableAsync(restaurantId, tableId);
         if (tableEntity == null)
         {
-            return NotFound("Table not found");
+            return NotFound(ApiErrors.TableNotFound);
         }
 
         _mapper.Map(tableForUpdate, tableEntity);
-
-        await _tablesRepository.SaveChangesAsync();
-
-        return NoContent();
-    }
-
-    /// <summary>
-    /// Patches an existing table in a restaurant.
-    /// </summary>
-    /// <param name="restaurantId">The ID of the restaurant.</param>
-    /// <param name="tableId">The ID of the table to patch.</param>
-    /// <param name="patchDocument">The JSON patch document for updating the table.</param>
-    /// <returns>No content if successful.</returns>
-    /// <response code="204">No content if successful.</response>
-    /// <response code="400">If the data is invalid.</response>
-    /// <response code="404">If the restaurant is not found or the table is not found in the restaurant.</response>
-    [HttpPatch("{tableId}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> PatchTable(int restaurantId, int tableId, JsonPatchDocument<TableForCreationOrUpdateDto> patchDocument)
-    {
-        var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
-        if (!restaurantExists)
-        {
-            return NotFound("Restaurant not found");
-        }
-
-        var tableEntity = await _tablesRepository.GetTableAsync(restaurantId, tableId);
-        if (tableEntity == null)
-        {
-            return NotFound("Table not found.");
-        }
-
-        var tableToPatch = _mapper.Map<TableForCreationOrUpdateDto>(tableEntity);
-        patchDocument.ApplyTo(tableToPatch, ModelState);
-
-        if (!ModelState.IsValid || !TryValidateModel(tableToPatch))
-        {
-            return BadRequest(ModelState);
-        }
-
-        _mapper.Map(tableToPatch, tableEntity);
-
         await _tablesRepository.SaveChangesAsync();
 
         return NoContent();
@@ -206,13 +164,13 @@ public class TablesController : ControllerBase
         var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
         if (!restaurantExists)
         {
-            return NotFound("Restaurant not found.");
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
         var tableEntity = await _tablesRepository.GetTableAsync(restaurantId, tableId);
         if (tableEntity == null)
         {
-            return NotFound("Table not found.");
+            return NotFound(ApiErrors.TableNotFound);
         }
 
         try
@@ -222,7 +180,7 @@ public class TablesController : ControllerBase
         }
         catch (Exception)
         {
-            return BadRequest("Cannot delete the table, some reservations are attached to it.");
+            return BadRequest(ApiErrors.DeletionIsInvalid);
         }
 
         return NoContent();

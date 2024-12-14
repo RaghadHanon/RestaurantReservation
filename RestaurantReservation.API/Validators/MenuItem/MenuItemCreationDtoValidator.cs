@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using RestaurantReservation.Api.Validators;
 using RestaurantReservation.API.Models.MenuItem;
 using RestaurantReservation.API.ValidationMessages;
 
@@ -6,18 +7,8 @@ public class MenuItemCreationDtoValidator : AbstractValidator<MenuItemCreationDt
 {
     public MenuItemCreationDtoValidator()
     {
-        RuleFor(x => x.Name)
-            .NotEmpty().WithMessage(ValidationErrors.RequiredField)
-            .Length(3, 100).WithMessage(ValidationErrors.Length);
-
-        RuleFor(x => x.Description)
-            .NotEmpty().WithMessage(ValidationErrors.RequiredField)
-            .Length(10, 500).WithMessage(ValidationErrors.Length);
-
-        RuleFor(x => x.Price)
-            .GreaterThan(0).WithMessage(ValidationErrors.GreaterThan);
-
-        RuleFor(x => x.RestaurantId)
-            .GreaterThan(0).WithMessage(ValidationErrors.GreaterThan);
+        RuleFor(x => x.Name).ValidName();
+        RuleFor(x => x.Description).ValidDescription();
+        RuleFor(x => x.Price).ValidPrice();
     }
 }

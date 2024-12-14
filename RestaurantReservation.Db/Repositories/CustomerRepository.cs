@@ -24,16 +24,18 @@ public class CustomerRepository : ICustomerRepository
 
     public async Task<Customer?> GetCustomerAsync(int id, bool includeReservations = false)
     {
+        var query = _dbContext.Customers.AsQueryable();
         if (includeReservations)
         {
-            return await _dbContext.Customers.Include(c => c.Reservations).FirstOrDefaultAsync(c => c.CustomerId == id);
+            query = query.Include(c => c.Reservations);
         }
-        return await _dbContext.Customers.FirstOrDefaultAsync(c => c.CustomerId == id);
+
+        return await query.FirstOrDefaultAsync(c => c.CustomerId == id);
     }
 
-    public Customer CreateCustomer(Customer customer)
+    public async Task<Customer> CreateCustomerAsync(Customer customer)
     {
-        _dbContext.Customers.Add(customer);
+        await _dbContext.Customers.AddAsync(customer);
         return customer;
     }
 

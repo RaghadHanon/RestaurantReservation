@@ -95,12 +95,12 @@ public class MenuItemsController : ControllerBase
         }
 
         var menuItemEntity = _mapper.Map<MenuItem>(menuItemForCreation);
-        var createdMenuItem = _menuItemRepository.CreateMenuItem(restaurantId, menuItemEntity);
+        var createdMenuItem = await _menuItemRepository.CreateMenuItemAsync(restaurantId, menuItemEntity);
         await _menuItemRepository.SaveChangesAsync();
 
         return CreatedAtRoute("GetMenuItem",
             new { 
-                restaurantId, menuItemId = createdMenuItem.ItemId 
+                restaurantId, menuItemId = createdMenuItem.MenuItemId 
             },
             _mapper.Map<MenuItemDto>(createdMenuItem));
     }
@@ -140,53 +140,6 @@ public class MenuItemsController : ControllerBase
         }
 
         _mapper.Map(menuItemForUpdate, menuItemEntity);
-        await _menuItemRepository.SaveChangesAsync();
-        return NoContent();
-    }
-
-    /// <summary>
-    /// Updates an existing menu item partially in a restaurant.
-    /// </summary>
-    /// <param name="restaurantId">The ID of the restaurant.</param>
-    /// <param name="menuItemId">The ID of the menu item to update.</param>
-    /// <param name="patchDocument">The JSON patch document for updating the menu item.</param>
-    /// <returns>No content if successful, bad request if the update fails or the restaurant or menu item does not exist.</returns>
-    /// <response code="204">If the update is successful.</response>
-    /// <response code="400">If the patch document or updated data is invalid.</response>
-    /// <response code="404">If the menu item with the specified ID or If the restaurant with the specified ID or target restaurant with the specified ID is not found.</response>
-    [HttpPatch("{menuItemId}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> PatchMenuItem(int restaurantId, int menuItemId,
-        JsonPatchDocument<MenuItemUpdateDto> patchDocument)
-    {
-        var restaurantExists = await _restaurantRepository.RestaurantExistsAsync(restaurantId);
-        if (!restaurantExists)
-        {
-            return NotFound(ApiErrors.RestaurantNotFound);
-        }
-
-        var menuItemEntity = await _menuItemRepository.GetMenuItemAsync(restaurantId, menuItemId);
-        if (menuItemEntity == null)
-        {
-            return NotFound(ApiErrors.MenuItemNotFound);
-        }
-
-        var menuItemToPatch = _mapper.Map<MenuItemUpdateDto>(menuItemEntity);
-        patchDocument.ApplyTo(menuItemToPatch, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
-        var targetRestaurantExists = await _restaurantRepository.RestaurantExistsAsync(menuItemToPatch.RestaurantId);
-        if (!targetRestaurantExists)
-        {
-            return NotFound($"Target {ApiErrors.RestaurantNotFound}");
-        }
-
-        if (!ModelState.IsValid || !TryValidateModel(menuItemToPatch))
-        {
-            return BadRequest(ModelState);
-        }
-
-        _mapper.Map(menuItemToPatch, menuItemEntity);
         await _menuItemRepository.SaveChangesAsync();
         return NoContent();
     }

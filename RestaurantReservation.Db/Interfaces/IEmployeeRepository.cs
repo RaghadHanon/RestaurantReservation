@@ -3,7 +3,7 @@
 namespace RestaurantReservation.Db.Interfaces;
 public interface IEmployeeRepository
 {
-    Employee CreateEmployee(Employee employee);
+    Task<Employee> CreateEmployeeAsync(Employee employee);
     void DeleteEmployee(Employee employee);
     Task<bool> EmployeeExistsAsync(int id);
     Task<IEnumerable<Employee>> GetAllEmployeesAsync();

@@ -35,6 +35,7 @@ public class RestaurantRepository : IRestaurantRepository
         {
             await _context.Entry(restaurant).Collection(r => r.Employees).LoadAsync();
         }
+
         if (includeMenuItems)
         {
             await _context.Entry(restaurant).Collection(r => r.MenuItems).LoadAsync();
@@ -42,9 +43,9 @@ public class RestaurantRepository : IRestaurantRepository
 
         return restaurant;
     }
-    public Restaurant CreateRestaurant(Restaurant restaurant)
+    public async Task<Restaurant> CreateRestaurantAsync(Restaurant restaurant)
     {
-        _context.Restaurants.Add(restaurant);
+        await _context.Restaurants.AddAsync(restaurant);
         return restaurant;
     }
 
@@ -56,7 +57,7 @@ public class RestaurantRepository : IRestaurantRepository
     public async Task<int?> GetRestaurantIdByMenuItemIdAsync(int menuItemId)
     {
         return await _context.MenuItems
-            .Where(mi => mi.ItemId == menuItemId)
+            .Where(mi => mi.MenuItemId == menuItemId)
             .Select(mi => mi.RestaurantId)
             .FirstOrDefaultAsync();
     }

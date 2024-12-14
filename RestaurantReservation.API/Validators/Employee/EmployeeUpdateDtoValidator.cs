@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using RestaurantReservation.Api.Validators;
 using RestaurantReservation.API.Models.Employee;
 using RestaurantReservation.API.ValidationMessages;
 
@@ -8,26 +9,9 @@ public class EmployeeUpdateDtoValidator : AbstractValidator<EmployeeUpdateDto>
 {
     public EmployeeUpdateDtoValidator()
     {
-        RuleFor(e => e.RestaurantId)
-            .NotEmpty()
-            .WithMessage(ValidationErrors.RequiredField);
-
-        RuleFor(e => e.FirstName)
-            .NotEmpty()
-            .WithMessage(ValidationErrors.RequiredField)
-            .MaximumLength(50)
-            .WithMessage(ValidationErrors.MaxLength.Replace("{MaxLength}", "50"));
-
-        RuleFor(e => e.LastName)
-            .NotEmpty()
-            .WithMessage(ValidationErrors.RequiredField)
-            .MaximumLength(50)
-            .WithMessage(ValidationErrors.MaxLength.Replace("{MaxLength}", "50"));
-
-        RuleFor(e => e.Position)
-            .NotEmpty()
-            .WithMessage(ValidationErrors.RequiredField)
-            .MaximumLength(50)
-            .WithMessage(ValidationErrors.MaxLength.Replace("{MaxLength}", "50"));
+        RuleFor(e => e.RestaurantId).ValidId();
+        RuleFor(e => e.FirstName).ValidName();
+        RuleFor(e => e.LastName).ValidName();
+        RuleFor(e => e.Position).ValidName();
     }
 }

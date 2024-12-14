@@ -1,8 +1,6 @@
 ﻿
-namespace AuthenticationService
+namespace AuthenticationService;
+public interface IUserValidation
 {
-    public interface IUserValidation
-    {
-        Task<(ApplicationUser, IList<string>)?> Validate(string username, string password);
-    }
+    Task<(ApplicationUser, IList<string>)?> Validate(string username, string password);
 }

@@ -7,8 +7,7 @@ public class TableUpdateDtoValidator : AbstractValidator<TableUpdateDto>
     public TableUpdateDtoValidator()
     {
         RuleFor(x => x.Capacity)
-            .GreaterThan(0).WithMessage(ValidationErrors.GreaterThan);
-        RuleFor(x => x.RestaurantId)
-            .GreaterThan(0).WithMessage(ValidationErrors.GreaterThan);
+            .NotEmpty().NotNull()
+            .InclusiveBetween(1, 30).WithMessage(ValidationErrors.InclusiveBetween);
     }
 }

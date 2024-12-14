@@ -31,11 +31,10 @@ public class TableRepository : ITableRepository
                                                            && t.TableId == tableId);
     }
 
-    public Table CreateTable(int restaurantId, Table table)
+    public async Task<Table> CreateTableAsync(int restaurantId, Table table)
     {
-        _dbContext.Tables.Add(table);
+        await _dbContext.Tables.AddAsync(table);
         table.RestaurantId = restaurantId;
-
         return table;
     }
 

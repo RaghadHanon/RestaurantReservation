@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RestaurantReservation.Db.Entities;
 using RestaurantReservation.Db.Interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace RestaurantReservation.Db.Repositories;
 
@@ -25,12 +26,12 @@ public class ReservationRepository : IReservationRepository
 
     public async Task<Reservation?> GetReservationAsync(int reservationId, bool includeOrders = false)
     {
+        var query = _dbContext.Reservations.AsQueryable();
         if (includeOrders)
         {
-            return await _dbContext.Reservations
-                .Include(r => r.Orders)
-                .FirstOrDefaultAsync(r => r.ReservationId == reservationId);
+            query = query.Include(r => r.Orders);
         }
+
         return await _dbContext.Reservations
                      .FirstOrDefaultAsync(r => r.ReservationId == reservationId);
     }
@@ -41,9 +42,9 @@ public class ReservationRepository : IReservationRepository
             .Where(r => r.CustomerId == customerID)
             .ToListAsync();
     }
-    public Reservation CreateReservation(Reservation reservation)
+    public async Task<Reservation> CreateReservationAsync(Reservation reservation)
     {
-        _dbContext.Reservations.Add(reservation);
+        await _dbContext.Reservations.AddAsync(reservation);
         return reservation;
     }
 

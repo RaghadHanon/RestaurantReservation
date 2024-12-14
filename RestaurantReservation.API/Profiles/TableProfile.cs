@@ -9,7 +9,6 @@ public class TableProfile : Profile
     public TableProfile()
     {
         CreateMap<Table, TableDto>();
-        CreateMap<Table, TableWithReservationsDto>();
         CreateMap<TableCreationDto, Table>();
         CreateMap<TableUpdateDto, Table>();
     }

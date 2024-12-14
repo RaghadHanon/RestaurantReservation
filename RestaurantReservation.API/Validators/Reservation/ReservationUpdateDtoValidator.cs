@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using RestaurantReservation.Api.Validators;
 using RestaurantReservation.API.Models.Reservation;
 using RestaurantReservation.API.ValidationMessages;
 
@@ -6,9 +7,13 @@ public class ReservationUpdateDtoValidator : AbstractValidator<ReservationUpdate
 {
     public ReservationUpdateDtoValidator()
     {
-        RuleFor(x => x.ReservationDate)
-            .GreaterThanOrEqualTo(DateTime.Now).WithMessage(ValidationErrors.FutureDate);
+        RuleFor(x => x.CustomerId).ValidId();
+        RuleFor(x => x.RestaurantId).ValidId();
+        RuleFor(x => x.TableId).ValidId();
         RuleFor(x => x.PartySize)
-            .GreaterThan(0).WithMessage(ValidationErrors.GreaterThan);
+            .NotEmpty().NotNull()
+            .InclusiveBetween(1, 30);
+
+        RuleFor(x => x.ReservationDate).ValidOneMonthInFutureDate();
     }
 }

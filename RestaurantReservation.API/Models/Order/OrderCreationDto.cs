@@ -6,11 +6,6 @@
 public class OrderCreationDto
 {
     /// <summary>
-    /// The ID of the reservation associated with the order.
-    /// </summary>
-    public int ReservationId { get; set; }
-
-    /// <summary>
     /// The ID of the employee placing the order.
     /// </summary>
     public int EmployeeId { get; set; }

@@ -121,7 +121,7 @@ public class OrdersController : ControllerBase
         }
 
         var orderEntity = _mapper.Map<Order>(orderForCreation);
-        _orderRepository.CreateOrder(reservationId, orderEntity);
+        await _orderRepository.CreateOrderAsync(reservationId, orderEntity);
         await _orderRepository.SaveChangesAsync();
 
         return CreatedAtRoute("GetOrder",
@@ -129,7 +129,7 @@ public class OrdersController : ControllerBase
             {
                 reservationId,
                 orderId = orderEntity.OrderId
-            }, _mapper.Map<OrderDto>(orderEntity));
+            }, _mapper.Map<OrderWithoutOrderItemsDto>(orderEntity));
     }
 
     /// <summary>

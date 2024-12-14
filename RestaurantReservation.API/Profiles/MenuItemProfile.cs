@@ -8,7 +8,6 @@ public class MenuItemProfile : Profile
     public MenuItemProfile()
     {
         CreateMap<MenuItem, MenuItemDto>();
-        CreateMap<MenuItem, MenuItemWithOrderItemsDto>();
         CreateMap<MenuItemCreationDto, MenuItem>();
         CreateMap<MenuItemUpdateDto, MenuItem>();
         CreateMap<MenuItem, MenuItemUpdateDto>();

@@ -1,9 +1,9 @@
 ﻿namespace RestaurantReservation.API.ModelView.Restaurant;
 
 /// <summary>
-/// Data transfer object for updating a resturant.
+/// Data transfer object for creating a resturant.
 /// </summary>
-public class RestaurantUpdateDto
+public class RestaurantCreationDto
 {
     /// <summary>
     /// The name of the restaurant.
@@ -23,5 +23,5 @@ public class RestaurantUpdateDto
     /// <summary>
     /// The opening hours of the restaurant.
     /// </summary>
-    public string OpenningHours { get; set; }
+    public string OpeningHours { get; set; }
 }

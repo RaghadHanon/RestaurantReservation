@@ -3,7 +3,7 @@
 namespace RestaurantReservation.Db.Interfaces;
 public interface IOrderItemRepository
 {
-    void AddOrderItemToOrder(int orderId, OrderItem orderItem);
+    Task AddOrderItemToOrderAsync(int orderId, OrderItem orderItem);
     void DeleteOrderItem(OrderItem orderItem);
     Task<OrderItem?> GetOrderItemAsync(int reservationId, int orderId, int orderItemId);
     Task<IEnumerable<OrderItem>> GetOrderItemsForOrderAsync(int reservationId, int orderId);

@@ -34,10 +34,10 @@ public class OrderItemRepository : IOrderItemRepository
                                               oi.OrderItemId == orderItemId);
     }
 
-    public void AddOrderItemToOrder(int orderId, OrderItem orderItem)
+    public async Task AddOrderItemToOrderAsync(int orderId, OrderItem orderItem)
     {
         orderItem.OrderId = orderId;
-        _dbContext.OrderItems.Add(orderItem);
+        await _dbContext.OrderItems.AddAsync(orderItem);
     }
 
     public void DeleteOrderItem(OrderItem orderItem)

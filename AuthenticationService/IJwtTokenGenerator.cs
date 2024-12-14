@@ -1,8 +1,6 @@
 ﻿
-namespace AuthenticationService
+namespace AuthenticationService;
+public interface IJwtTokenGenerator
 {
-    public interface IJwtTokenGenerator
-    {
-        string? GenerateToken(ApplicationUser user, IList<string> userRoles);
-    }
+    string? GenerateToken(ApplicationUser user, IList<string> userRoles);
 }

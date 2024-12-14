@@ -1,16 +1,16 @@
-﻿using AutoMapper;
+﻿using AuthenticationService;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using RestaurantReservation.API.Models.Employee;
-using RestaurantReservation.API.Models.MenuItem;
-using RestaurantReservation.API.Models.Reservation;
 using RestaurantReservation.API.ModelView.Restaurant;
-using RestaurantReservation.API.ModelView.Table;
 using RestaurantReservation.API.Utilities;
 using RestaurantReservation.Db.Entities;
 using RestaurantReservation.Db.Interfaces;
 
-namespace RestaurantReservation.API.Controllers;
+namespace RestaurantReservation.Api.Controllers;
 
+[Authorize]
 [Route("api/restaurants")]
 [ApiController]
 public class RestaurantsController : ControllerBase
@@ -20,116 +20,144 @@ public class RestaurantsController : ControllerBase
 
     public RestaurantsController(IRestaurantRepository restaurantRepository, IMapper mapper)
     {
-        _restaurantRepository = restaurantRepository ?? throw new ArgumentNullException(nameof(restaurantRepository));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _restaurantRepository = restaurantRepository;
+        _mapper = mapper;
     }
 
+    /// <summary>
+    /// Gets all restaurants.
+    /// </summary>
+    /// <returns>The list of restaurants.</returns>
+    /// <response code="200">Returns the list of restaurants.</response>
     [HttpGet]
-    public async Task<IActionResult> GetRestaurants()
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<RestaurantDto>))]
+    public async Task<ActionResult<IEnumerable<RestaurantDto>>> GetRestaurants()
     {
-        var restaurants = await _restaurantRepository.GetRestaurantsAsync();
-        var restaurantsToReturn = _mapper.Map<IEnumerable<RestaurantDto>>(restaurants);
-        return Ok(restaurantsToReturn);
+        var restaurants = await _restaurantRepository.GetAllRestaurantsAsync();
+        return Ok(_mapper.Map<IEnumerable<RestaurantDto>>(restaurants));
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetRestaurant(int id)
+    /// <summary>
+    /// Gets a specific restaurant by ID.
+    /// </summary>
+    /// <param name="id">The ID of the restaurant to retrieve.</param>
+    /// <param name="includeEmployees">Flag to include associated employees.</param>
+    /// <param name="includeMenuItems">Flag to include associated menu items.</param>
+    /// <returns>The restaurant data transfer object.</returns>
+    /// <response code="200">Returns the requested restaurant.</response>
+    /// <response code="404">If the restaurant with the specified ID is not found.</response>
+    /// <response code="400">If the client set both parameter to true.</response>
+
+    [HttpGet("{id}", Name = "GetRestaurant")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(RestaurantDto))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRestaurant(int id, bool includeEmployees = false, bool includeMenuItems = false)
     {
-        var restaurant = await _restaurantRepository.GetRestaurantAsync(id);
-        if (restaurant == null)
+        if (includeMenuItems && includeEmployees)
         {
-            return NotFound();
+            return BadRequest(ApiErrors.BigRequest);
         }
 
-        var restaurantToReturn = _mapper.Map<RestaurantDto>(restaurant);
-        return Ok(restaurantToReturn);
+        var restaurant = await _restaurantRepository.GetRestaurantAsync(id, includeEmployees, includeMenuItems);
+
+        if (restaurant == null)
+        {
+            return NotFound(ApiErrors.RestaurantNotFound);
+        }
+
+        if (includeEmployees)
+        {
+            return Ok(_mapper.Map<RestaurantWithEmployeesDto>(restaurant));
+        }
+        else if (includeMenuItems)
+        {
+            return Ok(_mapper.Map<RestaurantWithMenuItemsDto>(restaurant));
+        }
+
+        return Ok(_mapper.Map<RestaurantDto>(restaurant));
     }
 
+    /// <summary>
+    /// Creates a new restaurant.
+    /// </summary>
+    /// <param name="restaurant">The data for creating a new restaurant.</param>
+    /// <returns>The created restaurant.</returns>
+    /// <response code="201">Returns the created restaurant.</response>
+    /// <response code="400">If the data is invalid.</response>
     [HttpPost]
-    public async Task<IActionResult> AddRestaurant(RestaurantCreationDto restaurantDto)
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(RestaurantDto))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> PostRestaurant(RestaurantCreationDto restaurant)
     {
-        if (restaurantDto == null)
-        {
-            return BadRequest(ApiErrors.DataIsNull);
-        }
-
-        var newRestaurant = _mapper.Map<Restaurant>(restaurantDto);
-        await _restaurantRepository.AddRestaurantAsync(newRestaurant);
+        var finalRestaurant = _mapper.Map<Restaurant>(restaurant);
+        await _restaurantRepository.CreateRestaurantAsync(finalRestaurant);
         await _restaurantRepository.SaveChangesAsync();
 
-        var createdRestaurantToReturn = _mapper.Map<RestaurantDto>(newRestaurant);
-        return CreatedAtAction(nameof(GetRestaurant), new { id = newRestaurant.RestaurantId }, createdRestaurantToReturn);
+        return CreatedAtRoute("GetRestaurant",
+            new {
+                id = finalRestaurant.RestaurantId
+            },_mapper.Map<RestaurantDto>(finalRestaurant));
     }
 
+    /// <summary>
+    /// Updates an existing restaurant.
+    /// </summary>
+    /// <param name="id">The ID of the restaurant to update.</param>
+    /// <param name="restaurant">The data for updating the restaurant.</param>
+    /// <returns>No content if successful.</returns>
+    /// <response code="204">No content if successful.</response>
+    /// <response code="400">If the data is invalid.</response>
+    /// <response code="404">If the restaurant is not found.</response>
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateRestaurant(int id, RestaurantUpdateDto restaurantDto)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> PutRestaurant(int id, RestaurantUpdateDto restaurant)
     {
-        if (restaurantDto == null)
+        var restaurantEntity = await _restaurantRepository.GetRestaurantAsync(id);
+        if (restaurantEntity == null)
         {
-            return BadRequest(ApiErrors.DataIsNull);
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
-        var restaurant = await _restaurantRepository.GetRestaurantAsync(id);
-        if (restaurant == null)
-        {
-            return NotFound();
-        }
-
-        _mapper.Map(restaurantDto, restaurant);
+        _mapper.Map(restaurant, restaurantEntity);
         await _restaurantRepository.SaveChangesAsync();
+
         return NoContent();
     }
 
+    /// <summary>
+    /// Deletes an existing restaurant.
+    /// </summary>
+    /// <param name="id">The ID of the restaurant to delete.</param>
+    /// <returns>No content if successful.</returns>
+    /// <response code="204">No content if successful.</response>
+    /// <response code="400">If the restaurant cannot be deleted.</response>
+    /// <response code="404">If the restaurant is not found.</response>
+    [Authorize(Roles = UserRoles.Admin)]
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteRestaurant(int id)
     {
-        var restaurant = await _restaurantRepository.GetRestaurantAsync(id);
-        if (restaurant == null)
+        var restaurantEntity = await _restaurantRepository.GetRestaurantAsync(id);
+        if (restaurantEntity == null)
         {
-            return NotFound();
+            return NotFound(ApiErrors.RestaurantNotFound);
         }
 
-        _restaurantRepository.RemoveRestaurantAsync(restaurant);
-        await _restaurantRepository.SaveChangesAsync();
+        try
+        {
+            _restaurantRepository.DeleteRestaurant(restaurantEntity);
+            await _restaurantRepository.SaveChangesAsync();
+        }
+        catch (Exception)
+        {
+            return BadRequest(ApiErrors.DeletionIsInvalid);
+        }
+
         return NoContent();
-    }
-
-    [HttpGet("{id}/revenue")]
-    public async Task<IActionResult> GetTotalRevenue(int id)
-    {
-        var revenue = await _restaurantRepository.GetTotalRevenueAsync(id);
-        return Ok(new { Revenue = revenue });
-    }
-
-    [HttpGet("{id}/employees")]
-    public async Task<IActionResult> GetEmployeesByRestaurantId(int id)
-    {
-        var employees = await _restaurantRepository.GetEmployeesByRestaurantIdAsync(id);
-        var employeesToReturn = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
-        return Ok(employeesToReturn);
-    }
-
-    [HttpGet("{id}/tables")]
-    public async Task<IActionResult> GetTablesByRestaurantId(int id)
-    {
-        var tables = await _restaurantRepository.GetTablesByRestaurantIdAsync(id);
-        var tablesToReturn = _mapper.Map<IEnumerable<TableDto>>(tables);
-        return Ok(tablesToReturn);
-    }
-
-    [HttpGet("{id}/menu-items")]
-    public async Task<IActionResult> GetMenuItemsByRestaurantId(int id)
-    {
-        var menuItems = await _restaurantRepository.GetMenuItemsByRestaurantIdAsync(id);
-        var menuItemsToReturn = _mapper.Map<IEnumerable<MenuItemDto>>(menuItems);
-        return Ok(menuItemsToReturn);
-    }
-
-    [HttpGet("{id}/reservations")]
-    public async Task<IActionResult> GetReservationsByRestaurantId(int id)
-    {
-        var reservations = await _restaurantRepository.GetReservationsByRestaurantIdAsync(id);
-        var reservationsToReturn = _mapper.Map<IEnumerable<ReservationDto>>(reservations);
-        return Ok(reservationsToReturn);
     }
 }

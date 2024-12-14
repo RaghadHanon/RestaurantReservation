@@ -1,4 +1,6 @@
-﻿namespace RestaurantReservation.API.Models.Customer;
+﻿using RestaurantReservation.API.Models.Reservation;
+
+namespace RestaurantReservation.API.Models.Customer;
 public class CustomerWithReservationsDto
 {
     public int CustomerId { get; set; }
@@ -13,7 +15,6 @@ public class CustomerWithReservationsDto
             return Reservations.Count;
         }
     }
-
-    public List<Db.Entities.Reservation> Reservations { get; set; } = new List<Db.Entities.Reservation>();
+    public List<ReservationDto> Reservations { get; set; } 
 }
 

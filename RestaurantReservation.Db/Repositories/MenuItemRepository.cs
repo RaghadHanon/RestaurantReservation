@@ -15,7 +15,7 @@ public class MenuItemRepository : IMenuItemRepository
 
     public async Task<bool> MenuItemExistsAsync(int id)
     {
-        return await _dbContext.MenuItems.AnyAsync(m => m.ItemId == id);
+        return await _dbContext.MenuItems.AnyAsync(m => m.MenuItemId == id);
     }
 
     public async Task<IEnumerable<MenuItem>> GetMenuItemsInRestaurantAsync(int restaurantId)
@@ -27,7 +27,7 @@ public class MenuItemRepository : IMenuItemRepository
     {
         return await _dbContext.MenuItems
             .FirstOrDefaultAsync(m => m.RestaurantId == restaurantId
-                                   && m.ItemId == menuItemId);
+                                   && m.MenuItemId == menuItemId);
     }
 
     public async Task<IEnumerable<MenuItem>> GetOrderedMenuItemsByReservationIdAsync(int reservationId)
@@ -38,11 +38,10 @@ public class MenuItemRepository : IMenuItemRepository
             .ToListAsync();
     }
 
-    public MenuItem CreateMenuItem(int restaurantId, MenuItem menuItem)
+    public async Task<MenuItem> CreateMenuItemAsync(int restaurantId, MenuItem menuItem)
     {
-        _dbContext.MenuItems.Add(menuItem);
+        await _dbContext.MenuItems.AddAsync(menuItem);
         menuItem.RestaurantId = restaurantId;
-
         return menuItem;
     }
 

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using RestaurantReservation.Api.Validators;
 using RestaurantReservation.API.Models.Order;
 using RestaurantReservation.API.ValidationMessages;
 
@@ -7,16 +8,8 @@ public class OrderUpdateDtoValidator : AbstractValidator<OrderUpdateDto>
 {
     public OrderUpdateDtoValidator()
     {
-        RuleFor(x => x.ReservationId)
-            .GreaterThan(0)
-            .WithMessage(ValidationErrors.RequiredField);
-
-        RuleFor(x => x.EmployeeId)
-            .GreaterThan(0)
-            .WithMessage(ValidationErrors.RequiredField);
-
-        RuleFor(x => x.TotalAmount)
-            .GreaterThan(0)
-            .WithMessage(ValidationErrors.RequiredField);
+        RuleFor(x => x.ReservationId).ValidId();
+        RuleFor(x => x.EmployeeId).ValidId();
+        RuleFor(x => x.TotalAmount).ValidAmount();
     }
 }

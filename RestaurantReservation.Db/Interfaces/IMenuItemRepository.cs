@@ -3,7 +3,7 @@
 namespace RestaurantReservation.Db.Interfaces;
 public interface IMenuItemRepository
 {
-    MenuItem CreateMenuItem(int restaurantId, MenuItem menuItem);
+    Task<MenuItem> CreateMenuItemAsync(int restaurantId, MenuItem menuItem);
     void DeleteMenuItem(MenuItem menuItem);
     Task<MenuItem?> GetMenuItemAsync(int restaurantId, int menuItemId);
     Task<IEnumerable<MenuItem>> GetMenuItemsInRestaurantAsync(int restaurantId);
